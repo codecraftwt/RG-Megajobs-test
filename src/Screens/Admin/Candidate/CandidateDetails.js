@@ -27,7 +27,7 @@ const CandidateDetails = ({route}) => {
   const loading = useSelector(state => state.candidates.modifyloading)
 
   useLayoutEffect(()=>{
-    dispatch(fetchCandidateDetails(passeditem?.user_id))
+    dispatch(fetchCandidateDetails(passeditem?.id))
   },[passeditem])
 
   //details fakedata
@@ -43,6 +43,7 @@ const CandidateDetails = ({route}) => {
     {title: t('Pan Card No'), value: `${item?.pancard_no}`},
   ];
 
+  console.log("printing customData",customData ,"and item is ",item)
 
   //details design
   const personaldetailsdesign = item => (

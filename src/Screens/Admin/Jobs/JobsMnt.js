@@ -42,12 +42,31 @@ import Toast from 'react-native-toast-message';
         setSearchQuery(text);
       };
     
-      useEffect(() => {
+      // useEffect(() => {
+      //   if (searchQuery.trim() === '') {
+      //     setFilteredJobs(jobData);
+      //   } else {
+      //     const filteredData = jobData?.filter(job =>
+      //       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||  job?.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
+      //     );
+      //     setFilteredJobs(filteredData);
+      //   }
+      // }, [searchQuery, jobData]);
+
+        useEffect(() => {
+          if (!jobData || jobData.length === 0) {
+            setFilteredJobs([]);
+            return;
+          }
+
+          // Filter out null or undefined jobs first
+          const validJobs = jobData.filter(job => job != null);
+
         if (searchQuery.trim() === '') {
-          setFilteredJobs(jobData);
+          setFilteredJobs(validJobs);
         } else {
-          const filteredData = jobData?.filter(job =>
-            job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||  job?.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
+          const filteredData = validJobs.filter(job =>
+            job?.title?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||  job?.user?.name?.toLowerCase()?.includes(searchQuery.toLowerCase())
           );
           setFilteredJobs(filteredData);
         }
@@ -150,7 +169,7 @@ import Toast from 'react-native-toast-message';
             ) : (
               <FlatList
                 data={filteredJobs}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item?.id}
                 contentContainerStyle={{paddingBottom: h(2)}}
                 showsVerticalScrollIndicator={false}
                 renderItem={({item}) => (

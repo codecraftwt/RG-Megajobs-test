@@ -16,13 +16,15 @@ export const fetchJobData = createAsyncThunk(
 
 export const postJobData = createAsyncThunk(
   'jobs/postJobData',
-  async (jobData) => {
+  async (jobData
+    // , { rejectWithValue }
+  ) => {
     try {
       const response = await instance.post(`/api/job`, jobData);
-      return response.data.data[0];
+      return response.data.data[0] || response.data.data;
     } catch (error) {
       Toast.show({
-        text1: "Failed to Save Job",
+        text1: error?.message || "Failed to Save Job",
         type:'error',
         position: 'bottom'
       });
@@ -30,6 +32,36 @@ export const postJobData = createAsyncThunk(
     }
   }
 );
+
+// export const postJobData = createAsyncThunk(
+//   'jobs/postJobData',
+//   async (jobData, { rejectWithValue }) => {
+//     try {
+//       const response = await instance.post(`/api/job`, jobData);
+//       const job = response?.data?.data?.[0] ?? null;
+
+//       if (!job) {
+//         return rejectWithValue({
+//           status: 400,
+//           message: "Invalid job response"
+//         });
+//       }
+
+//       return job;
+//     } catch (error) {
+//       Toast.show({
+//         text1: error?.response?.data?.message || error?.message || "Failed to Save Job",
+//         type: 'error',
+//         position: 'bottom'
+//       });
+
+//       return rejectWithValue({
+//         status: error?.response?.status || 500,
+//         message: error?.response?.data?.message || error?.message || "Failed to Save Job"
+//       });
+//     }
+//   }
+// );
 
 export const filterJobs = createAsyncThunk(
   'jobs/filterJobs',
@@ -85,8 +117,9 @@ export const applyJob = createAsyncThunk(
     try {
       const response = await instance.post(`/api/application/${JobId}`, { "userId": userId })
       return (response.data);
+      // return { JobId, userId, ...response.data };
     } catch (error) {
-      throw error
+      return error
     }
   }
 )
@@ -163,7 +196,11 @@ export const savedJobsData = createAsyncThunk(
   async (id) => {
     try {
       const response = await instance.get(`/api/saved-jobs/${id}`);
-      const filteredresponse = response.data?.data?.saved_jobs?.map(job => parseInt(job.job_id))
+      const filteredresponse = response.data?.data?.saved_jobs?.map(job => ({
+        id: parseInt(job.job_id),
+        is_applied: job.is_applied === 1 || job.is_applied === true, 
+      }));
+      console.log("printing responce",response,"and filtered response",filteredresponse)
       return filteredresponse;
     } catch (error) {
       throw error;
@@ -202,7 +239,11 @@ const jobSlice = createSlice({
       })
       .addCase(saveJob.fulfilled, (state, action) => {
         state.loading = false;
-        state.SavedJobs.push(action.payload.jobId);
+        // state.SavedJobs.push(action.payload.jobId);
+        state.SavedJobs?.push({
+          id: action.payload.jobId,
+          applied_status: action.payload.applied_status ?? true, // default to true
+        });
         state.error = null;
       })
       .addCase(saveJob.rejected, (state, action) => {
@@ -238,7 +279,8 @@ const jobSlice = createSlice({
       })
       .addCase(unsaveJob.fulfilled, (state, action) => {
         state.loading = false;
-        state.SavedJobs = state.SavedJobs.filter(jobId => jobId !== action.payload.jobId);
+        // state.SavedJobs = state.SavedJobs.filter(jobId => jobId !== action.payload.jobId);
+        state.SavedJobs = state.SavedJobs.filter(job => job.id !== action.payload.jobId);
         state.error = null;
       })
       .addCase(unsaveJob.rejected, (state, action) => {
@@ -338,7 +380,24 @@ const jobSlice = createSlice({
       .addCase(deleteJobData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      });
+      })
+      .addCase(applyJob.fulfilled, (state, action) => {
+        const { JobId } = action.meta.arg;
+        console.log("printing job id",JobId,"and state",state ,"and action",action)
+        // mark applied in SavedJobs
+        if ( !(action.payload?.status >= 400 && action.payload?.status <= 500) &&  !action.error?.message) {
+          const savedIndex = state.SavedJobs.findIndex(job => job.id === JobId);
+          if (savedIndex !== -1) {
+            state.SavedJobs[savedIndex].is_applied = true;
+          }
+          // also update jobData list if needed
+          const jobIndex = state.jobData.findIndex(job => job.id === JobId);
+          if (jobIndex !== -1) {
+            state.jobData[jobIndex].applied_status = true;
+          }
+        }
+      })
+
   },
 });
 

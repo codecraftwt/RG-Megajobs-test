@@ -43,7 +43,19 @@ const Saved = ({ route }) => {
   }, [user, dispatch])
 
 
-  const SavedJobs = Jobs.filter(job => InitialSavedJobs.includes(job.id))
+  // const SavedJobs = Jobs.filter(job => InitialSavedJobs.includes(job.id))
+
+    const SavedJobs = Jobs.filter(job => 
+      InitialSavedJobs.some(saved => saved.id === job.id)
+    ).map(job => {
+      const saved = InitialSavedJobs.find(saved => saved.id === job.id);
+      return {
+        ...job, // keep all job details
+        applied_status: saved?.is_applied // add applied status
+      };
+    });
+
+    console.log("printing merged jobs",SavedJobs,"and saved jobs",SavedJobs)
 
   const [refresh, setRefresh ] = useState(false)
 
@@ -81,12 +93,21 @@ const Saved = ({ route }) => {
         refreshControl={
           <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
         }>
+        {/* {(showappbar ? SavedJobs : SavedJobs.slice(0, 2)).map((job) => (
+          <JobCard
+            goback={showappbar ? 'SavedJobs' : null}
+            params={{ showappbar: true }}
+            key={job.id}
+            item={job}
+          />
+        ))} */}
         {(showappbar ? SavedJobs : SavedJobs.slice(0, 2)).map((job) => (
           <JobCard
             goback={showappbar ? 'SavedJobs' : null}
             params={{ showappbar: true }}
             key={job.id}
             item={job}
+            onApplied={() => dispatch(savedJobsData(user.id))}  
           />
         ))}
       </ScrollView>

@@ -12,6 +12,9 @@ import { Buffer } from 'buffer';
 import NoData from '../../Common/Nodata';
 import AppBar from '../../../Components/AppBar';
 import UserSearchBar from '../../../Components/UserSearchBar';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { fetchJobReport } from '../../../Redux/Slices/jobReportSlice';
+// import SkeltonLoader from '../../../Components/SkeltonLoader';
 
 const JobsReport = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,8 +39,12 @@ const JobsReport = () => {
   }, [searchQuery, items]);
 
 
-  //fake table data
-  const [items] = useState([
+    // const dispatch = useDispatch();
+
+    // const { jobReportData, loading, error } = useSelector((state) => state.jobReport);
+
+   //fake table data
+  const [items,setItems] = useState([
     {
       subName: "JobName 1",
       chargePerMonth: "Rs 2000.00",
@@ -109,6 +116,17 @@ const JobsReport = () => {
       subStatus: "Active"
     },
    ]);
+
+      // useEffect(() => {
+        // dispatch(fetchJobReport());
+      // }, [dispatch]);
+
+      // useEffect(() => {
+      //   if (jobReportData?.length > 0) {
+      //     setItems(jobReportData);
+      //     setFiltereditems(jobReportData); 
+      //   }
+      // }, [jobReportData]);
 
 
    // pdf creation
@@ -198,6 +216,12 @@ const JobsReport = () => {
     }
   };
 
+    // if (loading) return <SkeltonLoader />;  
+    // if (error) return
+    // (<>
+    //   <AppBar navtitle={t('Jobs Report')} />
+    //   <NoData text={'No Matching Job Report'}/>
+    // </>);  
  
   //report screen
   return (

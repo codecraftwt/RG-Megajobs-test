@@ -18,15 +18,24 @@ export const postEducation = createAsyncThunk(
       try {
           const response = await instance.post(`api/educations`,{
             "education":data,
-            "status":"Active"})
+             "course_id": 1,
+            "status":"1"})
             Toast.show({
               text1:response.data.message,
               position: 'bottom'
             })
           return (response.data.data)
       } catch (error) {
+        const errorData = error?.data;
+        let errorMessage = errorData?.message || "Something went wrong";
+        if (errorData?.errors) {
+           const container = errorData.data || errorData.errors;   
+          const firstFieldKey = Object.keys(container)[0];
+          const firstError = container.education[0];    
+          errorMessage = firstError;
+        }
         Toast.show({
-          text1:"Failed to post Education",
+          text1:errorMessage || "Failed to post Education",
           type:'error',
           position: 'bottom'
         })

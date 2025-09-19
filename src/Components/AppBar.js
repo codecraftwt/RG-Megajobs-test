@@ -39,15 +39,36 @@ export default function AppBar({params , backto, navtitle, showBack}) {
     }, []) 
   );
 
-  useBackHandler(() => {
-    if (backto) {
-      navigation.navigate(`${backto}`,params ? params : null)
-      return true
-    }else{
-      navigation.goBack()
-      return true
-    }
-  })
+  // useBackHandler(() => {
+  //   if (backto) {
+  //     navigation.navigate(`${backto}`,params ? params : null)
+  //     return true
+  //   }else{
+  //     navigation.goBack()
+  //     return true
+  //   }
+  // })
+
+        useBackHandler(() => {
+        if (backto) {
+          if (backto === "Home") {
+            // Home is inside bottomnavigation (tab)
+            console.log("printing for testing")
+            navigation.navigate("bottomnavigation", { screen: "Home", params });
+          } else {
+            // Other cases can be direct
+            navigation.navigate(backto, params ? params : undefined);
+          }
+          return true
+        }else{
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+            return true
+          }
+        }
+        return false;
+      });
+
 
   return (
     <View>

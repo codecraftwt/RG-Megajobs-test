@@ -32,7 +32,7 @@ export const fetchCandidateDetails = createAsyncThunk(
   async (id) => {
     try {
       const response = await instance.get(`api/candidates/${id}`);
-      return response.data.data[0];
+      return response.data.data[0]|| response.data.data;
     } catch (error) {
       throw error
     }
@@ -136,6 +136,7 @@ const candidateSlice = createSlice({
       })
       .addCase(fetchCandidateDetails.fulfilled, (state, action) => {
         state.modifyloading = false;
+        console.log("printing candidate details", action)
         state.selectedCandidate = action.payload;
         state.error = null
       })

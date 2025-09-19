@@ -24,22 +24,15 @@ import PieStats from '../../../Components/PieStats';
     const loading = useSelector(state => state.jobs.loading);
     const error = useSelector(state => state.jobs.error);
   
-    useEffect(() => {
-      dispatch(fetchJobData());
-    }, [dispatch]);
+  const [refresh, setRefresh] = useState(false);
+  useEffect(() => {
+    dispatch(fetchJobData());
+  }, [dispatch]);
 
-    if (error) {
-      return <NoData refresh={() => dispatch(fetchJobData())} />;
-    }
-
-    const [refresh, setRefresh ] = useState(false)
-
-    const onRefresh = ()=>{
-      setRefresh(true)
-      dispatch(fetchJobData())
-      setRefresh(false)
-    }
-  
+  const onRefresh = () => {
+    setRefresh(true);
+    dispatch(fetchJobData()).finally(() => setRefresh(false));
+  };
     return (
       <View style={styles.container}>
         <AppBar />
@@ -51,6 +44,8 @@ import PieStats from '../../../Components/PieStats';
           }>
           {loading ? (
              <SkeltonLoader skeltonstyles={{marginTop:h(5)}}/>
+        ) : error ? (
+          <NoData refresh={() => dispatch(fetchJobData())} />
           ) : (
             <>
               <View

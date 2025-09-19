@@ -40,7 +40,10 @@ export default function JobsMnt() {
   const error = useSelector(state => state.jobs.error);
 
   if (error) {
-    return <NoData refresh={() => dispatch(appliedJobs(user.id))} />;
+    return(<>
+          <AppBar backto={'Home'}  navtitle={t('Applied Jobs')} />
+          <NoData refresh={() => dispatch(appliedJobs(user.id))} />
+      </>);
   }
 
   // jobs screen

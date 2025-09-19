@@ -12,6 +12,8 @@ import PermissionReducer from '../Slices/Permissionslice';
 import locationReducer from '../Slices/Locationslice';
 import GrampanchayatReducer from '../Slices/Grampanchayatslice';
 import ApplicationsReducer from '../Slices/Applicationslice'
+import jobReportReducer from '../Slices/jobReportSlice'
+import subscriptionReportReducer from '../Slices/subscriptionReportSlice'
 
 
 
@@ -30,7 +32,8 @@ const rootReducer = combineReducers({
   location:locationReducer,
   Grampanchayat:GrampanchayatReducer,
   Applications:ApplicationsReducer,
-
+  jobReport:jobReportReducer,
+  subscriptionReport:subscriptionReportReducer
 });
 
 export default rootReducer;

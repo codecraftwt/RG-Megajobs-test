@@ -37,8 +37,15 @@ export const postskills = createAsyncThunk(
           })
           return response.data.data
       } catch (error) {
+        const errorData = error?.data;
+        let errorMessage = errorData?.message || "Something went wrong";
+        if (errorData?.data) {
+          const firstFieldKey = Object.keys(errorData.data)[0];  
+          const firstError = errorData.data[firstFieldKey][0];    
+          errorMessage = firstError;
+        }
         Toast.show({
-          text1:"Failed to post skill",
+          text1:errorMessage || "Failed to post skill",
           type:'error',
           position: 'bottom'
         })

@@ -12,7 +12,7 @@ import { baseurl } from '../Utils/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
-const JobCard = ({ item , goback ,params}) => {
+const JobCard = ({ item , goback ,params, onApplied }) => {
   const [user, setUser] = useState(null);
 
   useFocusEffect(
@@ -30,7 +30,8 @@ const JobCard = ({ item , goback ,params}) => {
 
   // const dispatch = useDispatch();
   const bookmarkedJobs = useSelector(state => state.jobs.SavedJobs);
-  const isBookmarked = bookmarkedJobs.find(job => job=== item.id);
+// const isBookmarked = bookmarkedJobs.find(job => job=== item.id);
+  const isBookmarked = bookmarkedJobs?.some(job => job?.id === item?.id);
   const dispatch = useDispatch()
 
   const handleBookmarkToggle = async () => {
@@ -49,14 +50,39 @@ const JobCard = ({ item , goback ,params}) => {
     }
   };
 
+  // const applyJobHandler = async () => {
+  //   dispatch(applyJob({ JobId: item.id, userId: user.id }))
+  //     .then((action) => {
+  //       console.log("printing action",action)
+  //       if (action?.payload?.data?.error ||action.payload?.message || action?.error?.message  ) {
+  //         Toast.show({
+  //             text1:action?.payload?.data?.error
+  //                   || action?.payload?.message 
+  //                   || action?.error?.message 
+  //                   || "Something went wrong",
+  //             position: 'bottom'
+  //           });
+  //       }
+  //     });
+  // };
+
   const applyJobHandler = async () => {
     dispatch(applyJob({ JobId: item.id, userId: user.id }))
       .then((action) => {
-        if (action.payload.message) {
+        if (action?.payload?.data?.error || action.payload?.message || action?.error?.message) {
           Toast.show({
-            text1: action.payload.message,
-            position: 'bottom'
+            text1: action?.payload?.data?.error
+              || action?.payload?.message
+              || action?.error?.message
+              || "Something went wrong",
+            position: 'bottom',
+            type: 'error'
           });
+        } else {
+          // ✅ Success → trigger parent refresh
+          if (onApplied) {
+            onApplied();
+          }
         }
       });
   };
@@ -133,7 +159,7 @@ const JobCard = ({ item , goback ,params}) => {
           </TouchableOpacity>)}
           {hasPermission('Apply Job Mobile') && (
             <TouchableOpacity onPress={applyJobHandler}>
-              <Text style={styles.apply}>Apply</Text>
+              <Text style={styles.apply}>{item.applied_status ? 'Applied' : 'Apply'}</Text>
             </TouchableOpacity>
           )}
         </View>

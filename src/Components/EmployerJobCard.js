@@ -15,7 +15,9 @@ import { baseurl } from '../Utils/API';
 export default function EmployerJobCard({ item, navigateto }) {
   const dispatch = useDispatch();
   const bookmarkedJobs = useSelector(state => state.jobs.SavedJobs);
-  const isBookmarked = bookmarkedJobs.find(job => job.id === item.id);
+  // const isBookmarked = bookmarkedJobs.find(job => job.id === item.id);
+  const isBookmarked = bookmarkedJobs?.some(job => job?.id === item?.id);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
 

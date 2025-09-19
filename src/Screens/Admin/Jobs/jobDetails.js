@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Image, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, Image, ScrollView, TouchableOpacity} from 'react-native';
 import React, {useLayoutEffect, useMemo, useState} from 'react';
 import {globalColors} from '../../../Theme/globalColors';
 import {f, h, w} from 'walstar-rn-responsive';
@@ -137,8 +137,12 @@ const JobDetails = ({route}) => {
               <BulletpointContainer data={item?.skills} />
             </View>
             <View style={{backgroundColor: globalColors.backgroundshade}}>
-              {hasPermission('Apply Job Mobile') && (
+              {hasPermission('Apply Job Mobile') && item?.is_applied==0 ? (
                 <ApplyBtn onPress={applyJobHandler} buttonText={buttonText} />
+              ):(
+                <TouchableOpacity style={styles.applyBtnStyles} disabled={true}>
+                  <Text style={styles.text}>You have already applied</Text>
+                </TouchableOpacity>
               )}
             </View>
           </>
@@ -164,6 +168,21 @@ const styles = StyleSheet.create({
     fontSize: f(2),
     paddingVertical: h(0.5),
   },
+   applyBtnStyles: {
+        backgroundColor: globalColors.activepink,
+        borderRadius: h(0.5),
+        paddingVertical: h(0.8),
+        paddingHorizontal: h(1),
+        alignItems: 'center',
+        marginHorizontal: h(2),
+        marginBottom: h(1),
+    },
+    text:{
+        fontFamily: 'BaiJamjuree-SemiBold',
+        color: globalColors.white,
+        fontSize: f(2),
+        textAlign: 'center',
+    }
 });
 
 export default JobDetails;

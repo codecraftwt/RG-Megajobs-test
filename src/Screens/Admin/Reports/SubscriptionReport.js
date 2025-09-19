@@ -12,6 +12,9 @@ import { Buffer } from 'buffer';
 import NoData from '../../Common/Nodata';
 import AppBar from '../../../Components/AppBar';
 import UserSearchBar from '../../../Components/UserSearchBar';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { fetchSubscriptionReport } from '../../../Redux/Slices/subscriptionReportSlice';
+// import SkeltonLoader from '../../../Components/SkeltonLoader';
 
 const SubscriptionReport = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,9 +37,12 @@ const SubscriptionReport = () => {
     }
   }, [searchQuery, items]);
 
+    // const dispatch = useDispatch();
+
+    // const { subscriptionReportData , loading, error } = useSelector((state) => state.SubscriptionReport);
 
   //fake table data
-  const [items] = useState([
+  const [items,setItems] = useState([
     {
       subName: 'Subscription 1',
       chargePerMonth: 'Rs 2000.00',
@@ -108,6 +114,17 @@ const SubscriptionReport = () => {
       subStatus: 'Active',
     },
   ]);
+
+        // useEffect(() => {
+        //   dispatch(fetchSubscriptionReport());
+        // }, [dispatch]);
+  
+        // useEffect(() => {
+        //   if (subscriptionReportData?.length > 0) {
+        //     setItems(subscriptionReportData);
+        //     setFiltereditems(subscriptionReportData); // optionally initialize filtered list
+        //   }
+        // }, [subscriptionReportData]);
 
   // pdf creation
   const createPDF = async () => {
@@ -204,6 +221,13 @@ const SubscriptionReport = () => {
       console.error('Error generating or saving Excel file:', error);
     }
   };
+  
+    // if (loading) return <SkeltonLoader />;  
+    // if (error) return
+    // (<>
+    //   <AppBar  navtitle={t('Jobs Report')} />
+    //   <NoData text={'No Matching Subscriptions'}/>
+    // </>);  
 
   //subscription report screen
   return (
