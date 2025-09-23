@@ -9,8 +9,6 @@ import {
   SafeAreaView,
   StatusBar,
   ActivityIndicator,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {LoginImage, Rgjobs} from '../../Theme/globalImages';
@@ -25,7 +23,6 @@ import {login} from '../../Redux/Slices/authslice';
 import {useDispatch, useSelector} from 'react-redux';
 import {getPermission} from '../../Redux/Slices/Permissionslice';
 import LanguageModal from '../../Components/LanguageModal';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function Login() {
   const navigation = useNavigation();
@@ -126,21 +123,7 @@ export default function Login() {
         backgroundColor={globalColors.backgroundshade}
         barStyle={'dark-content'}
       />
-
-      {/* Wrap with KeyboardAvoidingView + TouchableWithoutFeedback */}
-        <KeyboardAwareScrollView
-    contentContainerStyle={{flexGrow: 1}}
-    showsVerticalScrollIndicator={false}
-    enableOnAndroid={true}
-    extraScrollHeight={50}  // pushes inputs above keyboard
-    keyboardShouldPersistTaps="handled"
-  >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={{flexGrow: 1}}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
+      <ScrollView showsVerticalScrollIndicator={false}>
         <LanguageModal
           setvisible={setShowLanguageModal}
           isVisible={showLanguageModal}
@@ -254,8 +237,6 @@ export default function Login() {
           </TouchableOpacity> */}
         </View>
       </ScrollView>
-        </TouchableWithoutFeedback>
-      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

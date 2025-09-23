@@ -15,11 +15,13 @@ import UserHome from '../Screens/Admin/Home/UserHome';
 import EmployerHome from '../Screens/Admin/Home/EmployerHome';
 import InstitutionsHome from '../Screens/Admin/Home/InstitutionsHome';
 const styles = require('../Theme/globalStyles');
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DynamicBottomNav() {
   const Tab = createBottomTabNavigator();
   const { t } = useTranslation();
   const hasPermission = usePermissionCheck();
+    const insets = useSafeAreaInsets(); 
 
   return (
     <Tab.Navigator
@@ -30,7 +32,7 @@ export default function DynamicBottomNav() {
         tabBarActiveTintColor: globalColors.commonpink,
         tabBarInactiveTintColor: globalColors.cloudygrey,
         tabBarIconStyle: {display:'none'},
-        tabBarStyle: { backgroundColor: globalColors.white, height: h(7.5) },
+        tabBarStyle: { backgroundColor: globalColors.white, height: Math.round(h(7.5)) + Math.max(insets.bottom, 0) ,paddingBottom: insets.bottom,},
       })}
     >
       <Tab.Screen

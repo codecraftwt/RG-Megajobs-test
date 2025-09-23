@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {PaperProvider} from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import Navigation from './src/Navigations/index';
@@ -8,8 +8,16 @@ import {Provider} from 'react-redux';
 import store from './src/Redux/store/store';
 import { h, w } from 'walstar-rn-responsive';
 import { globalColors } from './src/Theme/globalColors';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar,useColorScheme } from 'react-native';
+// import changeNavigationBarColor from 'react-native-navigation-bar-color';
 
 const App = () => {
+    const isDarkMode = useColorScheme() === 'dark';
+
+      // useEffect(() => {
+      //   changeNavigationBarColor(isDarkMode ? '#000' : '#fff', !isDarkMode);
+      // }, [isDarkMode]);
   
   const toastConfig = {
     success: (props) => (
@@ -31,10 +39,13 @@ const App = () => {
   return (
     <Provider store={store}>
       <PaperProvider>
+        <SafeAreaProvider>
           <NavigationContainer>
+            <StatusBar barStyle={!isDarkMode ? 'light-content' : 'dark-content'} />
             <Navigation />
             <Toast config={toastConfig}/>
           </NavigationContainer>
+        </SafeAreaProvider>
       </PaperProvider>
     </Provider>
 
