@@ -18,6 +18,7 @@ const Permissionslice = createSlice({
     permissions: [],
     error: null,
     isLoading: false,
+    userId:null,
   },
   reducers: {},
   extraReducers: builder => {
@@ -29,6 +30,7 @@ const Permissionslice = createSlice({
       .addCase(getPermission.fulfilled, (state, action) => {
         state.isLoading = false;
         state.permissions = action.payload
+        state.userId = action.meta.arg; 
       })
       .addCase(getPermission.rejected, (state, action) => {
         state.isLoading = false;

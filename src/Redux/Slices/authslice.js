@@ -17,10 +17,7 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }) 
 
 export const fetchNotifications = createAsyncThunk('Notifications', async ( ) => {
   try {
-    console.log("Hello")
     const response = await instance.get(`api/notification`);
-    console.log("End")
-    console.log(response.data)
     return response.data;
   } catch (error) {
     console.log(error.message)

@@ -71,7 +71,8 @@ const JobsCategoryMnt = () => {
     <View
       style={{
         backgroundColor: globalColors.backgroundshade,
-        flex:1
+        flex:1,
+        paddingBottom:Math.max(insets.bottom, h(2)),
       }}>
       <AppBar navtitle={t('Job Category')} />
       <SearchbarAdd showadd={hasPermission('Job Category Create Mobile')} handleSearch={handleSearch} addbtnPress={addPress}  placeholder={t('searchPlaceholdercategory')} />

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { globalColors } from '../../../Theme/globalColors';
 import { f, h, w } from 'walstar-rn-responsive';
@@ -16,8 +16,25 @@ import ApplyBtn from '../../../Components/applyBtn';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import ImagePickerModal from '../../../Components/ImagePickerModal';
+import { useSelector , useDispatch } from 'react-redux';
+import { fetchProfile } from '../../../Redux/Slices/ProfileSlice';
 
 const ProfileDetails = () => {
+
+    const id = useSelector(state => state?.Permissions.userId);
+
+      const dispatch = useDispatch();
+  
+      useEffect(()=>{
+        if (id != null) {
+          dispatch(fetchProfile(id))
+        }
+      },[id])
+      
+        const candidates = useSelector(state => state.Profile.ProfileDetails);
+        const loading = useSelector(state => state.Profile.loading);
+  
+  
   const buttonText = () => {
     return (
       <View style={styles.buttonContent}>
@@ -98,7 +115,8 @@ const ProfileDetails = () => {
                 fontFamily: 'BaiJamjuree-Bold',
                 color: globalColors.darkblack,
               }}>
-              Priya Gupta
+              {/* Priya Gupta */}
+              {candidates?.name}
             </Text>
             <Text
               style={{
@@ -115,17 +133,36 @@ const ProfileDetails = () => {
       <View style={styles.userDetailsContanier}>
         <Text style={styles.userDetailsText}>
           <Text>Email Address</Text>{'   '}
-          <Text style={styles.semidetails}>xyz@gmailcom</Text>
+          <Text style={styles.semidetails}>
+            {/* xyz@gmailcom */}
+            {candidates?.email}
+          </Text>
         </Text>
         <View style={styles.horizontalRule2} />
         <Text style={styles.userDetailsText}>
           <Text>Address</Text>{'   '}
-          <Text style={styles.semidetails}>kolhapur</Text>
+          {/* <Text style={styles.semidetails}>
+            {candidates?.state?.state},{candidates?.district?.district} , {candidates?.taluka?.taluka} , {candidates?.village?.village}  , {candidates?.zipcode}
+          </Text> */}
+          <Text style={styles.semidetails}>
+            {[
+              candidates?.state?.state,
+              candidates?.district?.district,
+              candidates?.taluka?.taluka,
+              candidates?.village?.village,
+              candidates?.zipcode,
+            ]
+              .filter(Boolean) // remove null/undefined/empty
+              .join(", ")}
+          </Text>
         </Text>
         <View style={styles.horizontalRule2} />
         <Text style={styles.userDetailsText}>
           <Text>Mobile No</Text>{'   '}
-          <Text style={styles.semidetails}>7889887950</Text>
+          <Text style={styles.semidetails}>
+            {/* 7889887950 */}
+            {candidates?.contact_number || candidates?.contact_number_1 || candidates?.contact_number_2}
+          </Text>
         </Text>
         <View style={styles.horizontalRule2} />
         <Text style={styles.userDetailsText}>

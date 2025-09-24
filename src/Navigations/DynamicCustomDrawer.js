@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { TouchableOpacity, Text, View, Image, StyleSheet, ScrollView } from 'react-native';
-import { blogo1, blogo4, blogo5, educationicon, logout, save, subsmnt, suitcase } from '../Theme/globalImages';
+import { blogo1, blogo4, blogo5, educationicon, logout, save, subsmnt, suitcase,accountdrawer } from '../Theme/globalImages';
 import { globalColors } from '../Theme/globalColors';
 import { f, h, w } from 'walstar-rn-responsive';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -300,7 +300,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                         <Text style={styles.drawertxt}>{t('Saved Jobs')}</Text>
                     </TouchableOpacity>
                 )}
-                {/* <TouchableOpacity
+                <TouchableOpacity
                     style={styles.drawerItem}
                     onPress={() => navigation.navigate('UserDetails')}>
                     <Image
@@ -310,7 +310,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                     />
 
                     <Text style={styles.drawertxt}>{t('User Profile')}</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
                 <TouchableOpacity
                     style={{
                         flexDirection: 'row',

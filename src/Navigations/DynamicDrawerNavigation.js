@@ -27,10 +27,12 @@ import Saved from "../Screens/Admin/Home/Saved";
 import Grampanchayat from "../Screens/Admin/Grampanchayat/Grampanchayat";
 import GrampanchayatDeatils from "../Screens/Admin/Grampanchayat/GrampanchayatDetails";
 import AppliedJobs from "../Screens/Admin/Jobs/AppliedJobs";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DynamicDrawerNavigation() {
   const Drawer = createDrawerNavigator();
   const hasPermission = usePermissionCheck()
+  const insets = useSafeAreaInsets(); // get safe area insets
   
   return (
     <Drawer.Navigator 
@@ -40,6 +42,7 @@ export default function DynamicDrawerNavigation() {
       width:w(80),
       borderTopRightRadius: w(4),
       borderBottomRightRadius: w(4),
+      paddingBottom:Math.max(insets.bottom, h(2)),
     }
   }}
      drawerContent={props => <DynamicCustomDrawer {...props} />}>

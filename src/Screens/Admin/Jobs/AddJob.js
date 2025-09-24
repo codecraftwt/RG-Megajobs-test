@@ -29,6 +29,7 @@ import { fetchEmployersnameList } from '../../../Redux/Slices/Employerslice';
 import usePermissionCheck from '../../../Utils/HasPermission';
 import SkeltonLoader from '../../../Components/SkeltonLoader';
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 const AddJob = ({ route }) => {
@@ -105,6 +106,7 @@ const AddJob = ({ route }) => {
       clearform()
     }
   }, [item, updatejob]);
+  const insets = useSafeAreaInsets();
 
 
   const onChangeenddate = (event, selectedDate) => {
@@ -330,7 +332,7 @@ const AddJob = ({ route }) => {
 
 
   return (
-    <View style={{ flex: 1, backgroundColor: globalColors.backgroundshade }}>
+    <View style={{ flex: 1, backgroundColor: globalColors.backgroundshade,paddingBottom:Math.max(insets.bottom, h(2)), }}>
       <AppBar navtitle={updatejob ? t('Update Job') : t('Create Job')} showBack={true} backto={'JobListMnt'} />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}

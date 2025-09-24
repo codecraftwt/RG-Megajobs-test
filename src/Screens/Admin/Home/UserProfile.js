@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import { globalColors } from '../../../Theme/globalColors';
 import { f, h, w } from 'walstar-rn-responsive';
@@ -21,6 +21,8 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import ImagePickerModal from '../../../Components/ImagePickerModal';
+import { useSelector , useDispatch } from 'react-redux';
+import { fetchProfile } from '../../../Redux/Slices/ProfileSlice';
 
 const UserProfile = () => {
   const navigation = useNavigation();
@@ -31,6 +33,19 @@ const UserProfile = () => {
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+
+      const id = useSelector(state => state?.Permissions.userId);
+  
+      const dispatch = useDispatch();
+    
+        useEffect(()=>{
+          if (id != null) {
+            dispatch(fetchProfile(id))
+          }
+        },[id])
+    
+      const candidates = useSelector(state => state.Profile.ProfileDetails);
+      const loading = useSelector(state => state.Profile.loading);
 
   return (
     <>
@@ -45,7 +60,7 @@ const UserProfile = () => {
         style={{height: h(4)}}>
         <StatusBar backgroundColor="transparent" translucent />
       </LinearGradient>
-      <ScrollView
+      {!loading && <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         showsVerticalScrollIndicator={false}>
         <LinearGradient
@@ -99,7 +114,8 @@ const UserProfile = () => {
                     fontFamily: 'BaiJamjuree-Bold',
                     color: globalColors.darkblack,
                   }}>
-                  Priya Gupta
+                  {/* Priya Gupta */}
+                  {candidates?.name}
                 </Text>
                 <Text
                   style={{
@@ -122,7 +138,10 @@ const UserProfile = () => {
                     }}
                     source={email}
                   />
-                  <Text style={styles.Text3}>Priyagupta@gmail.com</Text>
+                  <Text style={styles.Text3}>
+                    {/* Priyagupta@gmail.com */}
+                    {candidates?.email}
+                    </Text>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Image
@@ -136,7 +155,10 @@ const UserProfile = () => {
                     }}
                     source={phone}
                   />
-                  <Text style={styles.Text3}>+91 845754854</Text>
+                  <Text style={styles.Text3}>
+                    {/* +91 845754854 */}
+                    {candidates?.contact_number}
+                    </Text>
                 </View>
               </View>
               {/* <View
@@ -269,7 +291,7 @@ const UserProfile = () => {
             setProfile={setProfile}
           />
         </LinearGradient>
-      </ScrollView>
+      </ScrollView>}
     </>
   );
 };
