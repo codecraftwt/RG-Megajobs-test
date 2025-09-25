@@ -28,6 +28,7 @@ import Grampanchayat from "../Screens/Admin/Grampanchayat/Grampanchayat";
 import GrampanchayatDeatils from "../Screens/Admin/Grampanchayat/GrampanchayatDetails";
 import AppliedJobs from "../Screens/Admin/Jobs/AppliedJobs";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ResumeViewer from "../Components/ResumeViewer";
 
 export default function DynamicDrawerNavigation() {
   const Drawer = createDrawerNavigator();
@@ -70,6 +71,7 @@ export default function DynamicDrawerNavigation() {
       <Drawer.Screen name="Grampanchayat" component={Grampanchayat} />
       <Drawer.Screen name="GrampanchayatDeatils" component={GrampanchayatDeatils} />
       <Drawer.Screen name="AppliedJobs" component={AppliedJobs} />
+      <Drawer.Screen name="ResumeViewer" component={ResumeViewer} />
 
     </Drawer.Navigator>
   );

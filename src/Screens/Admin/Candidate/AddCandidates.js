@@ -18,9 +18,10 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import SkeltonLoader from '../../../Components/SkeltonLoader';
 import { baseurl } from '../../../Utils/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DocumentUpload from '../../../Components/DocumentUpload';
 
 const AddCandidates = ({ route }) => {
-  const { item: passeditem, updateCandidate } = route.params;
+  const { item: passeditem, updateCandidate, back } = route.params;
   const [fname, setFname] = useState('');
   const [middle_name, setMiddleName] = useState('');
   const [lname, setLname] = useState('');
@@ -81,8 +82,8 @@ const AddCandidates = ({ route }) => {
   const loading = useSelector(state => state.candidates.modifyloading)
 
   useLayoutEffect(() => {
-    if(passeditem?.user_id){
-      dispatch(fetchCandidateDetails(passeditem?.user_id))
+    if(passeditem?.id){
+      dispatch(fetchCandidateDetails(passeditem?.id))
     }
   }, [passeditem])
 
@@ -174,51 +175,96 @@ const AddCandidates = ({ route }) => {
         validateFields();
       }
     }, [liveValidating , validateFields]);
-  
 
-  useLayoutEffect(() => {
-    if (updateCandidate && item) {
-      setLiveValidating(false)
-      setErrors({});
-      setFname(item.fname);
-      setMiddleName(item.middle_name);
-      setLname(item.lname);
-      setEmail(item.email);
-      setPassword(item.password);
-      setMinExperience(item.min_experience);
-      setMaxExperience(item.max_experience);
-      setStateId(item.state_id);
-      setDistrictId(item.district_id);
-      setTalukaId(item.taluka_id);
-      setVillageId(item.village_id);
-      setZipcode(item.zipcode);
-      setDob(item.dob);
-      setGender(item.user?.gender);
-      setProfession(item.profession);
-      setPhone(item.contact_number_1);
-      setContactNumber2(item.contact_number_2);
-      setAddressLine1(item.address_line_1);
-      setAddressLine2(item.address_line_2);
-      setLatitude(item.latitude);
-      setLongitude(item.longitude);
-      setAadharNo(item.aadhar_no);
-      setPancardNo(item.pancard_no);
-      setBloodGroup(item.blood_group);
-      setJobLocation(item.job_location);
-      setPassoutYear(item.passout_year);
-      setCollegeName(item.college_name);
-      setJobCategoryId(item.job_categories?.map(category => category.id?.toString()));
-      setDescription(item.description);
-      setEducation(item.education?.map(edu => edu.id.toString()));
-      setSkill(item.skills?.map(skill => skill.id.toString()));
-      setFormattedbirthDate(item.dob);
-      setProfile(item?.user?.document?.filter(doc => doc?.document_type == "profile")?.[0]?.document_file ? { path: `${baseurl}/${item?.user?.document?.filter(doc => doc.document_type == "profile")?.[0].document_file}` } : null)
-    } else {
-      setErrors({})
-      setLiveValidating(false)
-      clearForm()
-    }
-  }, [updateCandidate, item]);
+
+      const onComplete =async  file => {
+        if (!file) {
+            return
+        };
+        setResume(file);
+        Alert.alert('Success', 'Document uploaded successfully',file);
+      };
+  
+useLayoutEffect(() => {
+  if (updateCandidate && item) {
+    setLiveValidating(false)
+    setErrors({});
+    setFname(item.fname);
+    setMiddleName(item.middle_name);
+    setLname(item.lname);
+    setEmail(item.email);
+    setPassword(item.password);
+    setMinExperience(item.min_experience);
+    setMaxExperience(item.max_experience);
+    
+    // Set state first, then trigger district loading
+    setStateId(item.state_id?.toString());
+    
+    setDob(item.dob);
+    setGender(item.user?.gender);
+    setProfession(item.profession);
+    setPhone(item.contact_number_1);
+    setContactNumber2(item.contact_number_2);
+    setAddressLine1(item.address_line_1);
+    setAddressLine2(item.address_line_2);
+    setLatitude(item.latitude);
+    setLongitude(item.longitude);
+    setAadharNo(item.aadhar_no);
+    setPancardNo(item.pancard_no);
+    setBloodGroup(item.blood_group);
+    setJobLocation(item.job_location);
+    setPassoutYear(item.passout_year);
+    setCollegeName(item.college_name);
+    setJobCategoryId(item.job_categories?.map(category => category.id?.toString()));
+    setDescription(item.description);
+    setEducation(item.education?.map(edu => edu.id.toString()));
+    setSkill(item.skills?.map(skill => skill.id.toString()));
+    setFormattedbirthDate(item.dob);
+    setProfile(item?.user?.document?.filter(doc => doc?.document_type == "profile")?.[0]?.document_file ? { path: `${baseurl}/${item?.user?.document?.filter(doc => doc.document_type == "profile")?.[0].document_file}` } : null)
+  } else {
+    setErrors({})
+    setLiveValidating(false)
+    clearForm()
+  }
+}, [updateCandidate, item]);
+
+// Add this useEffect to handle district, taluka, village loading after state is set
+useEffect(() => {
+  if (updateCandidate && item && item.state_id) {
+    // Fetch districts for the state
+    dispatch(fetchDistrictById(item.state_id)).then(() => {
+      // After districts are loaded, set district_id and fetch talukas
+      setDistrictId(item.district_id?.toString());
+      
+      if (item.district_id) {
+        dispatch(fetchTalukaById(item.district_id)).then(() => {
+          // After talukas are loaded, set taluka_id and fetch villages
+          setTalukaId(item.taluka_id?.toString());
+          
+          if (item.taluka_id) {
+            dispatch(fetchVillageById(item.taluka_id)).then(() => {
+              // After villages are loaded, set village_id and zipcode
+              setVillageId(item.village_id?.toString());
+              
+              if (item.village_id) {
+                dispatch(fetchZipcodeById(item.village_id))
+                  .then(action => {
+                    setZipcode(action.payload[0]?.pincode || item.zipcode);
+                  });
+              } else {
+                setZipcode(item.zipcode);
+              }
+            });
+          } else {
+            setZipcode(item.zipcode);
+          }
+        });
+      } else {
+        setZipcode(item.zipcode);
+      }
+    });
+  }
+}, [updateCandidate, item, dispatch]);
 
 
   const clearForm = useCallback(() => {
@@ -364,6 +410,7 @@ const AddCandidates = ({ route }) => {
       job_category_id,
       education,
       skill,
+      resume
     };
 
     if (updateCandidate && item) {
@@ -454,7 +501,7 @@ const AddCandidates = ({ route }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: globalColors.backgroundshade }}>
-      <AppBar navtitle={updateCandidate ? t('Update candidate') : t('Create Candidate')} showBack={true} backto={'CandidateMnt'} />
+      <AppBar navtitle={updateCandidate ? t(`${back?"Update Profile":"Update candidate"}`) : t('Create Candidate')} showBack={true} backto={back ? back : 'CandidateMnt'} />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
@@ -1087,6 +1134,7 @@ const AddCandidates = ({ route }) => {
             maxLength={4}
           />
           {errors.passout_year ? <Text style={styles.errorText}>{errors.passout_year}</Text> : null}
+             <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume('')}}/>
 
           <View
             style={{

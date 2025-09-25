@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  Linking,
 } from 'react-native';
 import React, {useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -23,9 +25,43 @@ import { useNavigation } from '@react-navigation/native';
 import ImagePickerModal from '../../../Components/ImagePickerModal';
 import { useSelector , useDispatch } from 'react-redux';
 import { fetchProfile } from '../../../Redux/Slices/ProfileSlice';
+import DocumentUpload from '../../../Components/DocumentUpload';
+import EditProfileModal from '../Candidate/EditProfile';
+import {baseurl} from '../../../Utils/API'
+
+// Grid Item Component - Updated to receive navigation prop
+const ProfileGridItem = ({ icon, label, value, onEdit, resumeFile, navigation }) => (
+  <TouchableOpacity 
+    style={[
+      styles.gridItem,
+    ]}
+    onPress={() => {
+      if (label === 'View Resume' && resumeFile) {
+        console.log('Opening resume:', resumeFile);
+        // Call the function passed from parent
+        onEdit(resumeFile);
+      } else if (onEdit) {
+        onEdit();
+      }
+    }}
+    disabled={label === 'View Resume' && !resumeFile}
+  >
+    <View style={styles.gridHeader}>
+      <Text style={styles.gridIcon}>{icon}</Text>
+      <Text style={styles.gridLabel}>{label}</Text>
+    </View>
+    <Text style={[
+      styles.gridValue, 
+    ]} numberOfLines={2}>
+      {value || 'Not provided'}
+    </Text>
+  </TouchableOpacity>
+);
 
 const UserProfile = () => {
   const navigation = useNavigation();
+  const [resume, setResume] = useState(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [profile, setProfile] = useState(
     'https://i.pinimg.com/564x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg',
   );
@@ -47,8 +83,153 @@ const UserProfile = () => {
       const candidates = useSelector(state => state.Profile.ProfileDetails);
       const loading = useSelector(state => state.Profile.loading);
 
+      useEffect(() => {
+        if (candidates?.user?.document?.length > 0) {
+          const profileDoc = candidates.user.document.find(doc => doc.document_type === 'profile')?.document_file;
+          console.log("printing profile doc", profileDoc, candidates.user);
+          const profileUrl=`${baseurl}/${profileDoc}`
+          if (profileUrl) {
+            setProfile(profileUrl);
+          }
+        }
+      }, [candidates]); 
+
+  const onComplete = async (file) => {
+    if (!file) {
+      console.log('✅ removed successfully ', file);
+      return;
+    }
+    setResume(file);
+    console.log('✅ after blob', resume);
+    Alert.alert('Success', 'Document uploaded successfully', file);
+  };
+
+  // Resume opening function - MOVED INSIDE UserProfile component
+  const openResume = (resumeFile) => {
+    if (!resumeFile) {
+      Alert.alert('No Resume', 'No resume available for this candidate');
+      return;
+    }
+
+    console.log('Resume file path:', resumeFile);
+    
+    // Option 1: Navigate to ResumeViewer screen
+    navigation.navigate('ResumeViewer', { resumeUrl: `${baseurl}/${resumeFile}` });
+    
+    // Option 2: Open with external app (uncomment if preferred)
+    // const resumeUrl = `${baseurl}/${resumeFile}`;
+    // console.log("Resume URL:", resumeUrl);
+    // Linking.openURL(resumeUrl).catch(error => {
+    //   console.error('Failed to open URL:', error);
+    //   Alert.alert('Error', 'Cannot open resume file');
+    // });
+  };
+
+  // Enhanced grid configuration with edit handlers
+  const PROFILE_GRID_CONFIG = [
+    {
+      icon: '🏠',
+      label: 'Address',
+      value: [
+        candidates?.address_line_1,
+        candidates?.address_line_2,
+        candidates?.state?.state,
+        candidates?.district?.district,
+        candidates?.taluka?.taluka,
+        candidates?.village?.village,
+        candidates?.zipcode,
+      ].filter(Boolean).join(", "),
+    },
+    {
+      icon: '📍',
+      label: 'Job Location',
+      value: candidates?.job_location,
+    },
+    {
+      icon: '🎂',
+      label: 'DOB',
+      value: candidates?.dob,
+    },
+    {
+      icon: '💉',
+      label: 'Blood Group',
+      value: candidates?.blood_group,
+    },
+    {
+      icon: '🆔',
+      label: 'Aadhar No',
+      value: candidates?.aadhar_no,
+    },
+    {
+      icon: '💳',
+      label: 'PAN',
+      value: candidates?.pancard_no,
+    },
+    {
+      icon: '🎓',
+      label: 'College',
+      value: candidates?.college_name,
+    },
+    {
+      icon: '📅',
+      label: 'Passout Year',
+      value: candidates?.passout_year,
+    },
+    {
+      icon: '⏳',
+      label: 'Experience',
+      value: candidates?.min_experience && candidates?.max_experience
+        ? `${candidates.min_experience} - ${candidates.max_experience} years`
+        : null,
+    },
+    {
+      icon: '📱',
+      label: 'Alternate Contact',
+      value: candidates?.contact_number_2,
+    },
+    {
+      icon: '📄',
+      label: 'View Resume',
+      value: candidates?.user?.document?.find(doc => doc.document_type === 'resume')?.document_file ? 'Tap to view resume' : 'No resume available',
+      resumeFile: candidates?.user?.document?.find(doc => doc.document_type === 'resume')?.document_file,
+    },
+  ].filter(item => item.value && item.value !== 'No resume available');
+
+  const handleUploadResume = () => {
+    navigation.navigate('ResumeUpload');
+  };
+
+  const handleEditProfile = () => {
+    navigation.navigate('AddCandidates', { 
+      item: candidates, 
+      updateCandidate: true,
+      back: "UserDetails"
+    });
+  };
+
+  const handleSaveProfile = async (updatedData) => {
+    console.log('Saving profile data:', updatedData);
+  };
+
+  const handleCloseModal = () => {
+    setEditModalVisible(false);
+  };
+
+  // Handle grid item press
+  const handleGridItemPress = (label, resumeFile) => {
+    if (label === 'View Resume') {
+      openResume(resumeFile);
+    }
+  };
+
   return (
     <>
+      <EditProfileModal
+        visible={editModalVisible}
+        onClose={handleCloseModal}
+        userData={candidates}
+        onSave={handleSaveProfile}
+      />
       <LinearGradient
         colors={[
           globalColors.purplemedium1,
@@ -60,7 +241,7 @@ const UserProfile = () => {
         style={{height: h(4)}}>
         <StatusBar backgroundColor="transparent" translucent />
       </LinearGradient>
-      {!loading && <ScrollView
+      {!loading &&( <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         showsVerticalScrollIndicator={false}>
         <LinearGradient
@@ -75,223 +256,98 @@ const UserProfile = () => {
           <View style={styles.crossContainer}>
             <Text style={styles.myprofile}>My Profile</Text>
             <TouchableOpacity
-              style={{position: 'absolute', right: w(0)}}
-              onPress={() =>
-                navigation.navigate('bottomnavigation', {
-                  screen: 'Home',
-                })
-              }>
+              style={styles.closeButton}
+              onPress={() => navigation.navigate('bottomnavigation', { screen: 'Home' })}>
               <MaterialIcons
                 name="close"
                 size={h(4)}
                 color={globalColors.white}
-                style={styles.icon}
               />
             </TouchableOpacity>
           </View>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: globalColors.backgroundshade,
-              marginTop: h(8),
-              borderTopLeftRadius: h(5),
-              borderTopRightRadius: h(5),
-            }}>
-            <TouchableOpacity onPress={openModal}>
+           {/* Profile Content */}
+            <View style={styles.profileContent}>
+              {/* Profile Image */}
+            <TouchableOpacity onPress={openModal} style={styles.profileImageContainer}>
               <Image
-                resizeMode="contain"
-                source={{uri: profile}}
+                resizeMode="cover"
+                source={{ uri: profile }}
                 style={styles.userImage}
               />
-            <Image resizeMode='contain' style={{position:'absolute',left:'55%',width:w(5),height:w(5),marginTop:w(5),tintColor:globalColors.black}} source={edit}/>
+                <View style={styles.editImageOverlay}>
+                  <MaterialIcons name="edit" size={f(2)} color={globalColors.white} />
+                </View>
             </TouchableOpacity>
-            <View>
-              <View style={styles.userNameContainer}>
-                <Text
-                  style={{
-                    marginTop: h(0.5),
-                    fontSize: f(2.3),
-                    fontFamily: 'BaiJamjuree-Bold',
-                    color: globalColors.darkblack,
-                  }}>
-                  {/* Priya Gupta */}
-                  {candidates?.name}
+
+              {/* User Info */}
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>
+                  {candidates?.name || `${candidates?.fname} ${candidates?.lname}`}
                 </Text>
-                <Text
-                  style={{
-                    fontSize: f(1.55),
-                    fontFamily: 'BaiJamjuree-Medium',
-                    color: globalColors.navypurple,
-                  }}>
-                  Graphic Designer
+                <Text style={styles.userProfession}>
+                  {candidates?.profession}
                 </Text>
-              </View>
-              <View style={styles.SecondRow}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Image
-                    resizeMode="contain"
-                    style={{
-                      marginRight: w(1),
-                      width: w(2.8),
-                      height: w(2.8),
-                      tintColor: globalColors.darkpurple,
-                    }}
-                    source={email}
-                  />
-                  <Text style={styles.Text3}>
-                    {/* Priyagupta@gmail.com */}
-                    {candidates?.email}
+                
+                {/* Contact Info */}
+                <View style={styles.contactInfo}>
+                  <View style={styles.contactItem}>
+                    <Image source={email} style={styles.contactIcon} />
+                    <Text style={styles.contactText}>{candidates?.email}</Text>
+                  </View>
+                  <View style={styles.contactItem}>
+                    <Image source={phone} style={styles.contactIcon} />
+                    <Text style={styles.contactText}>
+                      {candidates?.contact_number || candidates?.contact_number_1 || candidates?.contact_number_2}
                     </Text>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Image
-                    resizeMode="contain"
-                    style={{
-                      marginRight: w(1),
-                      width: w(2.45),
-                      width: w(2.8),
-                      height: w(2.8),
-                      tintColor: globalColors.darkpurple,
-                    }}
-                    source={phone}
-                  />
-                  <Text style={styles.Text3}>
-                    {/* +91 845754854 */}
-                    {candidates?.contact_number}
-                    </Text>
+                  </View>
                 </View>
               </View>
-              {/* <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginHorizontal: '12%',
-                  marginTop: h(4),
-                }}>
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={styles.substxt}>100</Text>
-                  <Text style={styles.substitletxt}>Portfolio</Text>
-                </View>
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={styles.substxt}>100</Text>
-                  <Text style={styles.substitletxt}>Followers</Text>
-                </View>
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={styles.substxt}>100</Text>
-                  <Text style={styles.substitletxt}>Following</Text>
-                </View>
-              </View> */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  paddingTop: h(3),
-                  justifyContent: 'space-between',
-                  marginHorizontal: '07%',
-                  marginBottom: h(3),
-                }}>
-                <TouchableOpacity
-                  style={{
-                    paddingHorizontal: w(10),
-                    paddingVertical: w(2),
-                    backgroundColor: globalColors.white,
-                    borderRadius: w(2.5),
-                    elevation: 2,
-                  }}>
-                  <Text style={styles.btntxtes}>Edit</Text>
+
+              {/* Action Buttons */}
+              <View style={styles.actionButtons}>
+                <TouchableOpacity style={styles.actionButton} onPress={handleEditProfile}>
+                  <Text style={styles.actionButtonText}>Edit Profile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    paddingHorizontal: w(10),
-                    paddingVertical: w(2),
-                    backgroundColor: globalColors.white,
-                    borderRadius: w(2.5),
-                    elevation: 2,
-                  }}>
-                  <Text style={styles.btntxtes}>Share</Text>
+                <TouchableOpacity style={styles.actionButton}>
+                  <Text style={styles.actionButtonText}>Share</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: globalColors.white,
-                    paddingHorizontal: w(3),
-                    paddingVertical: w(2),
-                    elevation: 2,
-                    borderRadius: w(2.5),
-                  }}>
-                  <Image
-                    resizeMode="contain"
-                    style={{
-                      width: w(5),
-                      height: w(5),
-                      tintColor: globalColors.commonpink,
-                    }}
-                    source={userprofileedit}
-                  />
+                <TouchableOpacity style={styles.iconButton}>
+                  <Image source={userprofileedit} style={styles.iconButtonImage} />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={{
-                  marginTop: h(1),
-                  flexDirection: 'row',
-                  backgroundColor: globalColors.commonlightpink,
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingVertical: w(1.5),
-                  marginHorizontal: w(5),
-                  paddingHorizontal: w(3),
-                  borderRadius: w(2),
-                }}>
-                <Text
-                  style={{
-                    fontSize: f(1.7),
-                    fontFamily: 'BaiJamjuree-SemiBold',
-                    color: globalColors.white,
-                  }}>
-                  Upload Resume
-                </Text>
-                <Image
-                  resizeMode="contain"
-                  style={{width: w(4), height: w(4)}}
-                  source={upload}
-                />
-              </TouchableOpacity>
-              <Text
-                style={{
-                  fontFamily: 'BaiJamjuree-Bold',
-                  color: globalColors.black,
-                  fontSize: f(1.6),
-                  paddingVertical: h(0.5),
-                  paddingStart: w(5.5),
-                  marginTop: w(3),
-                }}>
-                About Me
-              </Text>
-              <Text
-                style={{
-                  fontSize: f(1.35),
-                  fontFamily: 'BaiJamjuree-Regular',
-                  backgroundColor: globalColors.white,
-                  borderRadius: w(3),
-                  marginHorizontal: w(5),
-                  marginBottom: w(5),
-                  elevation: 2,
-                  paddingHorizontal: w(3.5),
-                  paddingVertical: w(2),
-                  color: globalColors.darkblack,
-                }}>
-                FolloweIt is a long established fact that a reader will be
-                distracted by the readable content of a page when looking at its
-                layout. The point of using Lorem Ipsum is that it has a
-                more-or-less normal distribution of letters, as opposed.
-              </Text>
+
+              {/* Upload Resume */}
+              <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume(''); console.log("printing resume",resume)}}/>
+
+              {/* About Me Section */}
+              <View style={styles.aboutMeSection}>
+                <Text style={styles.aboutMeTitle}>About Me</Text>
+                
+                {/* Grid Layout */}
+                <View style={styles.gridContainer}>
+                  {PROFILE_GRID_CONFIG.map((item, index) => (
+                    <ProfileGridItem
+                      key={index}
+                      icon={item.icon}
+                      label={item.label}
+                      value={item.value}
+                      resumeFile={item.resumeFile}
+                      onEdit={() => handleGridItemPress(item.label, item.resumeFile)}
+                      navigation={navigation} // Pass navigation prop
+                    />
+                  ))}
+                </View>
+              </View>
             </View>
-          </View>
-          <ImagePickerModal
-            visible={modalVisible}
-            onClose={closeModal}
-            setProfile={setProfile}
-          />
-        </LinearGradient>
-      </ScrollView>}
+
+            <ImagePickerModal
+              visible={modalVisible}
+              onClose={closeModal}
+              setProfile={setProfile}
+            />
+          </LinearGradient>
+        </ScrollView>
+      )}
     </>
   );
 };
@@ -299,22 +355,7 @@ const UserProfile = () => {
 export default UserProfile;
 
 const styles = StyleSheet.create({
-  userImage: {
-    borderRadius: h(10),
-    borderWidth: h(0.4),
-    height: w(23),
-    width: w(23),
-    borderColor: globalColors.white,
-    position: 'absolute',
-    top: w(-11),
-    alignSelf: 'center',
-  },
-  userNameContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: h(6.5),
-  },
-
+  // ... your existing styles remain the same
   crossContainer: {
     marginHorizontal: h(2),
     marginTop: h(2),
@@ -323,36 +364,193 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   myprofile: {
-    fontSize: f(2.3),
+    fontSize: f(3),
     fontFamily: 'BaiJamjuree-SemiBold',
     color: globalColors.white,
   },
-  SecondRow: {
-    flexDirection: 'row',
+  closeButton: {
+    position: 'absolute',
+    right: w(0),
+  },
+  profileContent: {
+    flex: 1,
+    backgroundColor: globalColors.backgroundshade,
+    marginTop: h(8),
+    borderTopLeftRadius: h(5),
+    borderTopRightRadius: h(5),
+    paddingBottom: h(3),
+  },
+  profileImageContainer: {
+    alignSelf: 'center',
+    marginTop: h(-5),
+  },
+  userImage: {
+    borderRadius: w(12),
+    borderWidth: h(0.4),
+    height: w(23),
+    width: w(23),
+    borderColor: globalColors.white,
+  },
+  editImageOverlay: {
+    position: 'absolute',
+    bottom: w(1),
+    right: w(1),
+    backgroundColor: globalColors.commonpink,
+    borderRadius: w(2),
+    padding: w(1),
+  },
+  userInfo: {
     alignItems: 'center',
     marginTop: h(2),
-    justifyContent: 'space-between',
-    marginHorizontal: '8%',
+    paddingHorizontal: w(5),
   },
-  Text3: {
-    marginEnd: w(4),
+  userName: {
+    fontSize: f(2.3),
+    fontFamily: 'BaiJamjuree-Bold',
     color: globalColors.darkblack,
-    fontFamily: 'BaiJamjuree-Regular',
-    fontSize: f(1.55),
+    textAlign: 'center',
   },
-  substxt: {
-    color: globalColors.darkblack,
-    fontFamily: 'BaiJamjuree-SemiBold',
-    fontSize: f(1.55),
-  },
-  substitletxt: {
-    color: globalColors.suvagrey,
+  userProfession: {
+    fontSize: f(1.8),
     fontFamily: 'BaiJamjuree-Medium',
-    fontSize: f(1.55),
+    color: globalColors.navypurple,
+    marginTop: h(0.5),
+    textAlign: 'center',
   },
-  btntxtes: {
+  contactInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: h(2),
+    paddingHorizontal: w(2),
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  contactIcon: {
+    width: w(3),
+    height: w(3),
+    tintColor: globalColors.darkpurple,
+    marginRight: w(1),
+  },
+  contactText: {
+    fontSize: f(1.6),
+    fontFamily: 'BaiJamjuree-Regular',
+    color: globalColors.darkblack,
+    flexShrink: 1,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: w(8),
+    marginTop: h(3),
+    marginBottom: h(2),
+  },
+  actionButton: {
+    paddingHorizontal: w(6),
+    paddingVertical: h(1),
+    backgroundColor: globalColors.white,
+    borderRadius: w(2.5),
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  actionButtonText: {
     fontSize: f(1.6),
     fontFamily: 'BaiJamjuree-SemiBold',
     color: globalColors.commonpink,
+  },
+  iconButton: {
+    backgroundColor: globalColors.white,
+    padding: w(3),
+    borderRadius: w(2.5),
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  iconButtonImage: {
+    width: w(4),
+    height: w(4),
+    tintColor: globalColors.commonpink,
+  },
+  uploadResumeButton: {
+    flexDirection: 'row',
+    backgroundColor: globalColors.commonlightpink,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: h(1.5),
+    marginHorizontal: w(5),
+    paddingHorizontal: w(4),
+    borderRadius: w(2),
+    marginTop: h(1),
+    elevation: 2,
+  },
+  uploadResumeText: {
+    fontSize: f(1.7),
+    fontFamily: 'BaiJamjuree-SemiBold',
+    color: globalColors.white,
+  },
+  uploadIcon: {
+    width: w(4),
+    height: w(4),
+  },
+  aboutMeSection: {
+    marginTop: h(3),
+    paddingHorizontal: w(4),
+  },
+  aboutMeTitle: {
+    fontFamily: 'BaiJamjuree-Bold',
+    color: globalColors.black,
+    fontSize: f(2),
+    marginBottom: h(2),
+    textAlign: 'center',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  gridItem: {
+    width: w(42),
+    backgroundColor: globalColors.white,
+    borderRadius: w(3),
+    padding: w(4),
+    marginBottom: h(2),
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  gridHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: h(1),
+  },
+  gridIcon: {
+    fontSize: f(2.5),
+  },
+  editIconBtn: {
+    padding: w(1),
+  },
+  gridLabel: {
+    fontSize: f(1.5),
+    fontFamily: 'BaiJamjuree-Medium',
+    color: globalColors.grey,
+    marginBottom: h(0.5),
+  },
+  gridValue: {
+    fontSize: f(1.6),
+    fontFamily: 'BaiJamjuree-SemiBold',
+    color: globalColors.darkblack,
+    lineHeight: h(2.2),
   },
 });
