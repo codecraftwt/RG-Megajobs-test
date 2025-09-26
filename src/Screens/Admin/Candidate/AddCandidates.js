@@ -103,6 +103,70 @@ const AddCandidates = ({ route }) => {
     setFormattedbirthDate(formattedDateString);
   };
 
+  const fetchZipcodeFromNominatim = async (villageName) => {
+  try {
+    // Encode the village name for the URL
+    const StateObj = states.find(v => v.value === state_id);
+    const stateName = StateObj ? StateObj.label : null;
+
+    const encodedVillageName = encodeURIComponent(`${villageName},${stateName}, India`);
+    const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodedVillageName}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'YourAppName/1.0 (your@email.com)',
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+
+    if (data && data.length > 0) {
+      const locationData = data[0];
+      
+      // Extract pincode from display_name or use other methods
+      const pincode = extractPincodeFromLocationData(locationData);
+      
+      if (pincode) {
+        setZipcode(pincode);
+      } else {
+        setZipcode(''); // Clear if no pincode found
+      }
+    } else {
+      setZipcode(''); // Clear if no data found
+    }
+  } catch (error) {
+    console.error('Error fetching zipcode from Nominatim:', error);
+    // You might want to set a default value or show an error message
+    setZipcode('');
+  }
+};
+
+  const extractPincodeFromLocationData = (locationData) => {
+  // Method 1: Check if pincode is in display_name (most common)
+  const displayName = locationData.display_name || '';
+  
+  // Look for 6-digit pincode pattern in display_name
+  const pincodeMatch = displayName.match(/\b\d{6}\b/);
+  if (pincodeMatch) {
+    return pincodeMatch[0];
+  }
+  
+  // Method 2: For Indian addresses, pincode is often at the end
+  // You can add more specific parsing logic based on your needs
+  
+  // Method 3: If the above doesn't work, you might need to use a different API
+  // or implement more sophisticated parsing
+  
+  return null;
+};
+
   const validateFields = useCallback(() => {
     const newErrors = {};
     if (!fname) newErrors.fname = 'First Name is required';
@@ -247,10 +311,15 @@ useEffect(() => {
               setVillageId(item.village_id?.toString());
               
               if (item.village_id) {
-                dispatch(fetchZipcodeById(item.village_id))
-                  .then(action => {
-                    setZipcode(action.payload[0]?.pincode || item.zipcode);
-                  });
+                // dispatch(fetchZipcodeById(item.village_id))
+                //   .then(action => {
+                //     setZipcode(action.payload[0]?.pincode || item.zipcode);
+                //   });
+                      const villageObj = villages.find(v => v.value === village_id);
+                      const village_name = villageObj ? villageObj.label : null;
+                        if (village_name) {
+                    fetchZipcodeFromNominatim(village_name);
+                        }
               } else {
                 setZipcode(item.zipcode);
               }
@@ -342,10 +411,15 @@ useEffect(() => {
 
   useEffect(() => {
     if(village_id){
-      dispatch(fetchZipcodeById(village_id))
-      .then(action => {
-        setZipcode(action.payload[0].pincode)
-      })
+      // dispatch(fetchZipcodeById(village_id))
+      // .then(action => {
+      //   setZipcode(action.payload[0].pincode)
+      // })
+      const villageObj = villages.find(v => v.value === village_id);
+      const village_name = villageObj ? villageObj.label : null;
+        if (village_name) {
+    fetchZipcodeFromNominatim(village_name);
+  }
     }
   }, [village_id])
 
@@ -380,7 +454,7 @@ useEffect(() => {
     // Construct JSON object
     const candidateData = {
       ...(profile && profile.mime && profile.data ? { profile: `data:${profile.mime};base64,${profile.data}`} : {}),
-      userid:user?.id,
+      user_id:user?.id,
       fname,
       middle_name,
       lname,
