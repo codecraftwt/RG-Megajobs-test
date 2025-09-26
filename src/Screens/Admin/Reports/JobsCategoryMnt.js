@@ -14,6 +14,7 @@ import SkeltonLoader from '../../../Components/SkeltonLoader';
 import { useNavigation } from '@react-navigation/native';
 import AppBar from '../../../Components/AppBar';
 import usePermissionCheck from '../../../Utils/HasPermission';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const JobsCategoryMnt = () => {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ const JobsCategoryMnt = () => {
   const Categories = useSelector(state => state.jobCategory.JobCategory)
   const loading = useSelector(state => state.jobCategory.loading)
   const [isModalVisible, setModalVisible] = useState(false);
+  const insets = useSafeAreaInsets(); 
 
   const handleAddData = ({field1}) => {
     dispatch(postJobCategories(field1))

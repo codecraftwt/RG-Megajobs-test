@@ -88,7 +88,7 @@ const ProfileDetails = () => {
           ]}
           start={{x: 0, y: 0}}
           end={{x: 1, y: 0}}
-          style={{height: w(25), marginBottom: h(18.5)}}>
+          style={{height: w(25), marginBottom: h(13.5)}}>
           <View style={styles.crossContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('bottomnavigation', {screen: 'Home'})}>
               <MaterialIcons
@@ -117,14 +117,6 @@ const ProfileDetails = () => {
               }}>
               {/* Priya Gupta */}
               {candidates?.name}
-            </Text>
-            <Text
-              style={{
-                fontSize: f(1.25),
-                fontFamily: 'BaiJamjuree-Medium',
-                color: globalColors.navypurple,
-              }}>
-              Graphic Designer
             </Text>
           </View>
           <View style={styles.horizontalRule} />
@@ -166,13 +158,13 @@ const ProfileDetails = () => {
         </Text>
         <View style={styles.horizontalRule2} />
         <Text style={styles.userDetailsText}>
-          <Text>Text</Text>{'   '}
-          <Text style={styles.semidetails}>Lorem12jsdhfijasiufauifh</Text>
+          <Text>Gst No</Text>{'   '}
+          <Text style={styles.semidetails}>{candidates?.gst_no}</Text>
         </Text>
         <View style={styles.horizontalRule2} />
         <Text style={styles.userDetailsText}>
-          <Text>Text</Text>{'   '}
-          <Text style={styles.semidetails}>kjsdfhjadfidjk</Text>
+          <Text>Website</Text>{'   '}
+          <Text style={styles.semidetails}>{candidates?.website_url}</Text>
         </Text>
         <View style={styles.horizontalRule2} />
       </View>
@@ -212,7 +204,7 @@ const styles = StyleSheet.create({
     marginHorizontal: h(3),
   },
   userDetailsContanier: {
-    marginTop: h(2),
+    marginTop: h(0),
     marginHorizontal: h(2),
   },
   horizontalRule2: {

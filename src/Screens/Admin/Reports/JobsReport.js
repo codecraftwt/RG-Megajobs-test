@@ -32,7 +32,7 @@ const JobsReport = () => {
       setFiltereditems(items);
     } else {
       const filteredData = items?.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase())
+        item?.title?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFiltereditems(filteredData);
     }
@@ -55,10 +55,24 @@ const JobsReport = () => {
           setFiltereditems(jobReportData.jobs); 
       }, [jobReportData,loading]);
 
+        const cleanHtmlContent = (htmlString) => {
+          if (!htmlString) return '';
+          
+          // Remove HTML tags and convert HTML entities to normal characters
+          return htmlString
+            .replace(/<[^>]*>/g, '') // Remove all HTML tags
+            .replace(/&nbsp;/g, ' ') // Replace &nbsp; with regular space
+            .replace(/&amp;/g, '&') // Replace &amp; with &
+            .replace(/&lt;/g, '<') // Replace &lt; with <
+            .replace(/&gt;/g, '>') // Replace &gt; with >
+            .replace(/&quot;/g, '"') // Replace &quot; with "
+            .replace(/&#39;/g, "'") // Replace &#39; with '
+            .trim(); // Remove extra whitespace
+        };
 
    // pdf creation
    const createPDF = async () => {
-    const htmlContent = generateHTML(items);
+    const htmlContent = generateHTML(filtereditems); // Use filtereditems instead of items
     let options = {
       html: htmlContent,
       fileName: 'Jobs Report',
@@ -79,7 +93,7 @@ const JobsReport = () => {
       <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>City Applications</title>
+      <title>Jobs Report</title>
       <style>
           table {
               border-collapse: collapse;
@@ -90,25 +104,36 @@ const JobsReport = () => {
               padding: 8px;
               text-align: left;
           }
+          th {
+              background-color: #f2f2f2;
+          }
       </style>
       </head>
       <body>
       <h3 style="text-align:center"> Jobs Report </h3>
       
-      <table id="cityTable">
+      <table id="jobsTable">
           <thead>
               <tr>
-                  <th>Sub Name</th>
-                  <th>Charge Per Month</th>
-                  <th>sub Status</th>
+                <th>Title</th>
+                <th>Summary</th>
+                <th>Location</th>
+                <th>Created Date</th>
+                <th>Openings</th>
+                <th>Applications</th>
+                <th>Status</th>
               </tr>
           </thead>
-          <tbody id="cityTableBody">
+          <tbody id="jobsTableBody">
             ${data.map(item => `
               <tr>
-                <td>${item.subName}</td>
-                <td>${item.chargePerMonth}</td>
-                <td>${item.subStatus}</td>
+              <td>${item?.title || 'N/A'}</td>
+              <td>${cleanHtmlContent(item?.summary) || 'N/A'}</td>
+              <td>${item?.location || 'N/A'}</td>
+              <td>${item?.created_at || 'N/A'}</td>
+              <td>${item?.openings || 'N/A'}</td>
+              <td>${item?.applications || 'N/A'}</td>
+              <td>${item?.status || 'N/A'}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -124,15 +149,33 @@ const JobsReport = () => {
     const fileUri = `${RNFS.ExternalDirectoryPath}/${fileName}`;
     try {
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = 'Gram JOb';
+      workbook.creator = 'Gram Job';
       workbook.created = new Date();
       const worksheet = workbook.addWorksheet('Jobs Report', {});
+            
+            // Updated columns to match your data structure
       worksheet.columns = [
-        { header: 'Sub Name', key: 'SubName', width: 15 },
-        { header: 'Charge', key: 'charge', width: 12 },
+        { header: 'Title', key: 'title', width: 20 },
+        { header: 'Summary', key: 'summary', width: 30 },
+        { header: 'Location', key: 'location', width: 15 },
+        { header: 'Created Date', key: 'createdDate', width: 15 },
+        { header: 'Openings', key: 'openings', width: 10 },
+        { header: 'Applications', key: 'applications', width: 12 },
         { header: 'Status', key: 'status', width: 12 },
       ];
-      items.map((item)=> worksheet.addRow({ SubName:item.subName, charge:item.chargePerMonth, status:item.subStatus}));
+
+            // Add rows with your actual data structure
+        filtereditems.map((item) => 
+          worksheet.addRow({ 
+            title: item?.title || 'N/A',
+            summary: cleanHtmlContent(item?.summary) || 'N/A',
+            location: item?.location || 'N/A',
+            createdDate: item?.created_at || 'N/A',
+            openings: item?.openings || 'N/A',
+            applications: item?.applications || 'N/A',
+            status: item?.status || 'N/A'
+         })
+       );
       const buffer = await workbook.xlsx.writeBuffer();
       const nodeBuffer = Buffer.from(buffer);
       const bufferStr = nodeBuffer.toString('base64');
@@ -183,25 +226,25 @@ const JobsReport = () => {
                   key={index}>
                   <DataTable.Cell
                     style={[styles.datatablecell, {marginStart: w(0)}]}>
-                    <Text style={styles.txtitem}>{item.title}</Text>
+                    <Text style={styles.txtitem}>{item?.title}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.summary}</Text>
+                    <Text style={styles.txtitem}>{cleanHtmlContent(item?.summary)}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.location}</Text>
+                    <Text style={styles.txtitem}>{item?.location}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.created_at}</Text>
+                    <Text style={styles.txtitem}>{item?.created_at}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.openings}</Text>
+                    <Text style={styles.txtitem}>{item?.openings}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.applications}</Text>
+                    <Text style={styles.txtitem}>{item?.applications}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.status}</Text>
+                    <Text style={styles.txtitem}>{item?.status}</Text>
                   </DataTable.Cell>
                 </DataTable.Row>
               )}
@@ -234,14 +277,15 @@ const styles = StyleSheet.create({
     alignItems:'center'
     },
   txtitem:{
-    color:globalColors.cellgrey,
-    fontSize:f(1.3),
+    color:globalColors.black,
+    fontSize:f(1.6),
     fontFamily:'BaiJamjuree-Medium',
     paddingVertical:h(2)
   },
   txtHead:{
-    color:globalColors.txtgrey,
-    fontSize:f(1.45),
+    color:globalColors.black,
+    fontSize:f(1.8),
     fontFamily:'BaiJamjuree-SemiBold',
+    fontWeight:'bold'
   }
 })

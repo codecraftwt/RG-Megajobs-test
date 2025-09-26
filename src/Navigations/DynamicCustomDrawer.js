@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
         fontFamily: 'BaiJamjuree-Regular',
         color: globalColors.navypurple,
         fontSize: f(1.4),
-        marginTop: h(-1),
+        // marginTop: h(-1),
     },
     useremail: {
         fontFamily: 'BaiJamjuree-Regular',
