@@ -37,7 +37,6 @@ const ProfileGridItem = ({ icon, label, value, onEdit, resumeFile, navigation })
     ]}
     onPress={() => {
       if (label === 'View Resume' && resumeFile) {
-        console.log('Opening resume:', resumeFile);
         // Call the function passed from parent
         onEdit(resumeFile);
       } else if (onEdit) {
@@ -86,7 +85,6 @@ const UserProfile = () => {
       useEffect(() => {
         if (candidates?.user?.document?.length > 0) {
           const profileDoc = candidates.user.document.find(doc => doc.document_type === 'profile')?.document_file;
-          console.log("printing profile doc", profileDoc, candidates.user);
           const profileUrl=`${baseurl}/${profileDoc}`
           if (profileUrl) {
             setProfile(profileUrl);
@@ -96,11 +94,9 @@ const UserProfile = () => {
 
   const onComplete = async (file) => {
     if (!file) {
-      console.log('✅ removed successfully ', file);
       return;
     }
     setResume(file);
-    console.log('✅ after blob', resume);
     Alert.alert('Success', 'Document uploaded successfully', file);
   };
 
@@ -111,14 +107,12 @@ const UserProfile = () => {
       return;
     }
 
-    console.log('Resume file path:', resumeFile);
     
     // Option 1: Navigate to ResumeViewer screen
     navigation.navigate('ResumeViewer', { resumeUrl: `${baseurl}/${resumeFile}` });
     
     // Option 2: Open with external app (uncomment if preferred)
     // const resumeUrl = `${baseurl}/${resumeFile}`;
-    // console.log("Resume URL:", resumeUrl);
     // Linking.openURL(resumeUrl).catch(error => {
     //   console.error('Failed to open URL:', error);
     //   Alert.alert('Error', 'Cannot open resume file');
@@ -208,7 +202,6 @@ const UserProfile = () => {
   };
 
   const handleSaveProfile = async (updatedData) => {
-    console.log('Saving profile data:', updatedData);
   };
 
   const handleCloseModal = () => {
@@ -317,7 +310,7 @@ const UserProfile = () => {
               </View>
 
               {/* Upload Resume */}
-              <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume(''); console.log("printing resume",resume)}}/>
+              <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume('')}}/>
 
               {/* About Me Section */}
               <View style={styles.aboutMeSection}>

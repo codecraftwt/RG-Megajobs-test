@@ -7,8 +7,8 @@ export const fetchJobReport = createAsyncThunk(
   'fetch/JobReport',
   async () => {
     try {
-      const response = await instance.get(`/JobReport`);  // Make sure this endpoint corresponds to your job report API
-      return response.data.data;
+      const response = await instance.get(`api/employer/report`);  // Make sure this endpoint corresponds to your job report API
+      return response.data;
     } catch (error) {
       throw error;
     }

@@ -12,9 +12,9 @@ import { Buffer } from 'buffer';
 import NoData from '../../Common/Nodata';
 import AppBar from '../../../Components/AppBar';
 import UserSearchBar from '../../../Components/UserSearchBar';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { fetchJobReport } from '../../../Redux/Slices/jobReportSlice';
-// import SkeltonLoader from '../../../Components/SkeltonLoader';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchJobReport } from '../../../Redux/Slices/jobReportSlice';
+import SkeltonLoader from '../../../Components/SkeltonLoader';
 
 const JobsReport = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,101 +32,28 @@ const JobsReport = () => {
       setFiltereditems(items);
     } else {
       const filteredData = items?.filter(item =>
-        item.subName.toLowerCase().includes(searchQuery.toLowerCase())
+        item.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFiltereditems(filteredData);
     }
   }, [searchQuery, items]);
 
 
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-    // const { jobReportData, loading, error } = useSelector((state) => state.jobReport);
+    const { jobReportData, loading, error } = useSelector((state) => state.jobReport);
 
    //fake table data
-  const [items,setItems] = useState([
-    {
-      subName: "JobName 1",
-      chargePerMonth: "Rs 2000.00",
-      requestStatus: "Pending",
-      requestDate: "2024-04-25",
-      subStatus: "Active"
-    },
-    {
-      subName: "JobName 2",
-      chargePerMonth: "Rs 1500.00",
-      requestStatus: "Approved",
-      requestDate: "2024-04-20",
-      subStatus: "Active"
-    },
-    {
-      subName: "JobName 3",
-      chargePerMonth: "Rs 2500.00",
-      requestStatus: "Rejected",
-      requestDate: "2024-04-18",
-      subStatus: "Inactive"
-    },
-    {
-      subName: "JobName 4",
-      chargePerMonth: "Rs 1800.00",
-      requestStatus: "Pending",
-      requestDate: "2024-04-15",
-      subStatus: "Active"
-    },
-    {
-      subName: "JobName 5",
-      chargePerMonth: "Rs 2200.00",
-      requestStatus: "Approved",
-      requestDate: "2024-04-12",
-      subStatus: "Active"
-    },
-    {
-      subName: "JobName 6",
-      chargePerMonth: "Rs 1700.00",
-      requestStatus: "Pending",
-      requestDate: "2024-04-10",
-      subStatus: "Inactive"
-    },
-    {
-      subName: "JobName 7",
-      chargePerMonth: "Rs 2300.00",
-      requestStatus: "Approved",
-      requestDate: "2024-04-08",
-      subStatus: "Active"
-    },
-    {
-      subName: "JobName 8",
-      chargePerMonth: "Rs 1600.00",
-      requestStatus: "Rejected",
-      requestDate: "2024-04-05",
-      subStatus: "Active"
-    },
-    {
-      subName: "JobName 9",
-      chargePerMonth: "Rs 2700.00",
-      requestStatus: "Pending",
-      requestDate: "2024-04-02",
-      subStatus: "Inactive"
-    },
-    {
-      subName: "JobName 10",
-      chargePerMonth: "Rs 1900.00",
-      requestStatus: "Approved",
-      requestDate: "2024-03-30",
-      subStatus: "Active"
-    },
-   ]);
+  const [items,setItems] = useState();
 
-      // useEffect(() => {
-        // dispatch(fetchJobReport());
-      // }, [dispatch]);
+      useEffect(() => {
+        dispatch(fetchJobReport());
+      }, [dispatch]);
 
-      // useEffect(() => {
-      //   if (jobReportData?.length > 0) {
-      //     setItems(jobReportData);
-      //     setFiltereditems(jobReportData); 
-      //   }
-      // }, [jobReportData]);
+      useEffect(() => {
+          setItems(jobReportData.jobs);
+          setFiltereditems(jobReportData.jobs); 
+      }, [jobReportData,loading]);
 
 
    // pdf creation
@@ -216,12 +143,12 @@ const JobsReport = () => {
     }
   };
 
-    // if (loading) return <SkeltonLoader />;  
-    // if (error) return
-    // (<>
-    //   <AppBar navtitle={t('Jobs Report')} />
-    //   <NoData text={'No Matching Job Report'}/>
-    // </>);  
+    if (loading) return <SkeltonLoader />;  
+    if (error) return
+    (<>
+      <AppBar navtitle={t('Jobs Report')} />
+      <NoData text={'No Matching Job Report'}/>
+    </>);  
  
   //report screen
   return (
@@ -236,12 +163,13 @@ const JobsReport = () => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       <DataTable >
       <DataTable.Header style={{backgroundColor:globalColors.shinygrey,borderBottomColor:globalColors.shinygrey,height:h(8),alignItems:'center'}} >
-        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Sub. Name</Text></DataTable.Title>
-        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Charge/Month</Text></DataTable.Title>
-        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Request Status</Text></DataTable.Title>
-        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Request Date</Text></DataTable.Title>
-        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Sub. Status</Text></DataTable.Title>
-        <DataTable.Title style={[styles.datatablecellHead,{width:w(20)}]}><Text style={styles.txtHead}>Option</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Title</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Summary</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Location</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Created Date</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Openings</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Applications</Text></DataTable.Title>
+        <DataTable.Title style={styles.datatablecellHead}><Text style={styles.txtHead}>Status</Text></DataTable.Title>
       </DataTable.Header>
       <FlatList
               data={filtereditems}
@@ -255,23 +183,25 @@ const JobsReport = () => {
                   key={index}>
                   <DataTable.Cell
                     style={[styles.datatablecell, {marginStart: w(0)}]}>
-                    <Text style={styles.txtitem}>{item.subName}</Text>
+                    <Text style={styles.txtitem}>{item.title}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.chargePerMonth}</Text>
+                    <Text style={styles.txtitem}>{item.summary}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.requestStatus}</Text>
+                    <Text style={styles.txtitem}>{item.location}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.requestDate}</Text>
+                    <Text style={styles.txtitem}>{item.created_at}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.datatablecell}>
-                    <Text style={styles.txtitem}>{item.subStatus}</Text>
+                    <Text style={styles.txtitem}>{item.openings}</Text>
                   </DataTable.Cell>
-                  <DataTable.Cell
-                    style={[styles.datatablecell, {width: w(20)}]}>
-                    <Text style={styles.txtitem}>...</Text>
+                  <DataTable.Cell style={styles.datatablecell}>
+                    <Text style={styles.txtitem}>{item.applications}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.datatablecell}>
+                    <Text style={styles.txtitem}>{item.status}</Text>
                   </DataTable.Cell>
                 </DataTable.Row>
               )}
