@@ -55,7 +55,6 @@ const Saved = ({ route }) => {
       };
     });
 
-    console.log("printing merged jobs",SavedJobs,"and saved jobs",SavedJobs)
 
   const [refresh, setRefresh ] = useState(false)
 

@@ -65,7 +65,6 @@ export default function DocumentUpload({ type, onUploadComplete, onRemove }) {
   const uploadFunction = async () => {
     if (!file) return;
     const base64 = await RNFetchBlob.fs.readFile(file.uri, 'base64');
-    console.log('base64 length', base64);
     onUploadComplete?.(base64);
   };
 

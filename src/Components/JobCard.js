@@ -53,7 +53,6 @@ const JobCard = ({ item , goback ,params, onApplied }) => {
   // const applyJobHandler = async () => {
   //   dispatch(applyJob({ JobId: item.id, userId: user.id }))
   //     .then((action) => {
-  //       console.log("printing action",action)
   //       if (action?.payload?.data?.error ||action.payload?.message || action?.error?.message  ) {
   //         Toast.show({
   //             text1:action?.payload?.data?.error

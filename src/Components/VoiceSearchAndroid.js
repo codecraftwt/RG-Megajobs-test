@@ -73,7 +73,6 @@ function AppContent() {
 
   const initializeVoiceRecognition = async () => {
     try {
-      console.log('Initializing Voice...');
       
       if (!Voice || typeof Voice.isAvailable !== 'function') {
         console.error('Voice module not properly loaded');
@@ -82,8 +81,6 @@ function AppContent() {
       }
       
       const isAvailable = await Voice.isAvailable();
-      console.log('Voice available:', isAvailable);
-      console.log('Voice module loaded:', Voice._loaded);
       
       if (!isAvailable) {
         console.error('Voice recognition not available on this device');
@@ -99,14 +96,12 @@ function AppContent() {
   };
 
   const onSpeechStart = (e) => {
-    console.log('Speech started - listening for voice input');
     setIsRecording(true);
     setIsLoading(true);
     setLastError('');
     isHandlingError.current = false;
     
     const timeout = setTimeout(async () => {
-      console.log('Recognition timeout - stopping voice recognition');
       try {
         if (isRecording && !isHandlingError.current) {
           await Voice.stop();
@@ -126,11 +121,9 @@ function AppContent() {
   };
 
   const onSpeechRecognized = (e) => {
-    console.log('Speech recognized:', e);
   };
 
   const onSpeechEnd = (e) => {
-    console.log('Speech ended - processing audio');
     setIsRecording(false);
     setIsLoading(false);
     
@@ -142,17 +135,16 @@ function AppContent() {
 
   const onSpeechError = (e) => {
     if (isHandlingError.current) {
-      console.log('Already handling an error, ignoring duplicate error');
       return;
     }
     
     isHandlingError.current = true;
     
-    console.error('Voice Recognition Error:', e);
-    console.error('Error details:', JSON.stringify(e, null, 2));
-    console.error('Error message:', e.error?.message);
-    console.error('Error code:', e.error?.code);
-    console.error('Error type:', e.error?.type);
+    // console.error('Voice Recognition Error:', e);
+    // console.error('Error details:', JSON.stringify(e, null, 2));
+    // console.error('Error message:', e.error?.message);
+    // console.error('Error code:', e.error?.code);
+    // console.error('Error type:', e.error?.type);
     setIsRecording(false);
     setIsLoading(false);
     
@@ -209,15 +201,12 @@ function AppContent() {
   };
 
   const onSpeechResults = (e) => {
-    console.log('Speech results:', e);
     if (e.value && e.value.length > 0) {
       const recognizedText = e.value[0];
-      console.log('Recognized text:', recognizedText);
       setTranscribedText(prevText => prevText + (prevText ? ' ' : '') + recognizedText);
       setRetryCount(0);
       setLastError('');
     } else {
-      console.log('No speech results received');
       setLastError('No speech detected. Please try speaking louder or closer to the microphone.');
       setRetryCount(prev => prev + 1);
     }
@@ -228,7 +217,6 @@ function AppContent() {
       if (Platform.OS === 'android') {
         const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
         setHasPermission(hasPermission);
-        console.log('Android permission check result:', hasPermission);
       } else {
         setHasPermission(true);
       }
@@ -257,7 +245,6 @@ function AppContent() {
           }
         );
         
-        console.log('Permission result:', granted);
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       } catch (err) {
         console.warn('Permission request error:', err);
@@ -269,20 +256,17 @@ function AppContent() {
 
   const startListening = async () => {
     try {
-      console.log('Starting voice recognition...');
       isHandlingError.current = false;
       
       let hasPermission = false;
       
       if (Platform.OS === 'android') {
         hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
-        console.log('Android permission check result:', hasPermission);
       } else {
         hasPermission = true;
       }
       
       if (!hasPermission) {
-        console.log('Permission not granted, requesting...');
         const permissionGranted = await requestMicrophonePermission();
         
         if (!permissionGranted) {
@@ -292,7 +276,6 @@ function AppContent() {
             [
               { text: 'Cancel', style: 'cancel' },
               { text: 'Settings', onPress: () => {
-                console.log('User should go to settings');
               }}
             ]
           );
@@ -309,7 +292,6 @@ function AppContent() {
       }
 
       const isAvailable = await Voice.isAvailable();
-      console.log('Voice is available:', isAvailable);
       
       if (!isAvailable) {
         Alert.alert('Error', 'Voice recognition is not available on this device');
@@ -322,7 +304,6 @@ function AppContent() {
       
       await Voice.start('hi-IN');
       console.warn('Voice module loaded last :', Voice._loaded);
-      console.log('Voice.start called successfully');
     } catch (error) {
       console.error('Error starting voice recognition:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));

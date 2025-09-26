@@ -43,7 +43,6 @@ const CandidateDetails = ({route}) => {
     {title: t('Pan Card No'), value: `${item?.pancard_no}`},
   ];
 
-  console.log("printing customData",customData ,"and item is ",item)
 
   //details design
   const personaldetailsdesign = item => (

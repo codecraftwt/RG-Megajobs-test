@@ -39,7 +39,6 @@ const JobDetails = ({route}) => {
     }, []),
   );
 
-  console.log('fggggggggggggggggggg', item?.description);
 
   useLayoutEffect(() => {
     if (passeditem?.id) {

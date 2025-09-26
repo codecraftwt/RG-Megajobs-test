@@ -37,7 +37,6 @@ const UserHome = ({ navigation }) => {
     setUser(userData);
   }, []);
 
-  console.log(user)
 
   useEffect(()=>{
     fetchUser()

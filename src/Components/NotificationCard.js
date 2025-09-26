@@ -21,7 +21,6 @@ const NotificationCard = ({data}) => {
     }
   }
 
-  console.log(data.read_at)
 
 
   return (

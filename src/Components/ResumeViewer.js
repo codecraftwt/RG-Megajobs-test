@@ -35,7 +35,6 @@ const ResumeViewer = ({ route, navigation }) => {
     if (resumeUrl && resumeUrl.toLowerCase().endsWith('.pdf')) {
       setIsPdf(true);
     }
-    console.log('Resume URL:', resumeUrl);
   }, [resumeUrl]);
 
   const handleLoadStart = () => {
@@ -101,11 +100,9 @@ const ResumeViewer = ({ route, navigation }) => {
   };
 
 //  const handleDownload = async () => {
-//   console.log("coming in handleDownload");
 //   try {
 //     // Check if component is mounted and app is active
 //     if (!navigation.isFocused()) {
-//       console.log('Component not focused, skipping alert');
 //       return;
 //     }
 
@@ -127,7 +124,6 @@ const ResumeViewer = ({ route, navigation }) => {
 // };
 
  const handleDownload = async () => {
-    console.log("coming in handleDownload");
     
     if (isDownloading) {
       Alert.alert('Info', 'Download already in progress');
@@ -137,7 +133,6 @@ const ResumeViewer = ({ route, navigation }) => {
     try {
       // Check if component is mounted and app is active
       if (!navigation.isFocused()) {
-        console.log('Component not focused, skipping download');
         return;
       }
 
@@ -188,7 +183,6 @@ const ResumeViewer = ({ route, navigation }) => {
         downloadPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + fileName;
       }
 
-      console.log('Download path:', downloadPath);
 
       // Download the file
       const result = await RNFetchBlob.config({
@@ -205,7 +199,6 @@ const ResumeViewer = ({ route, navigation }) => {
 
       // Check if download was successful
       if (result.info().status === 200) {
-        console.log('Download completed: ', result.path());
         
         // For Android, scan the file to make it visible in gallery/downloads
         if (Platform.OS === 'android') {
@@ -224,7 +217,6 @@ const ResumeViewer = ({ route, navigation }) => {
                   RNFetchBlob.android.actionViewIntent(result.path(), 'application/pdf');
                 } else {
                   // For iOS, you might need to use a different method
-                  console.log('File saved at:', result.path());
                 }
               }
             },

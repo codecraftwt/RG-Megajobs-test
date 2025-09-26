@@ -20,7 +20,6 @@ export const fetchNotifications = createAsyncThunk('Notifications', async ( ) =>
     const response = await instance.get(`api/notification`);
     return response.data;
   } catch (error) {
-    console.log(error.message)
   }
 });
 

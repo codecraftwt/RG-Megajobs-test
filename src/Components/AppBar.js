@@ -53,7 +53,6 @@ export default function AppBar({params , backto, navtitle, showBack}) {
         if (backto) {
           if (backto === "Home") {
             // Home is inside bottomnavigation (tab)
-            console.log("printing for testing")
             navigation.navigate("bottomnavigation", { screen: "Home", params });
           } else {
             // Other cases can be direct

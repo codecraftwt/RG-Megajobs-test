@@ -200,7 +200,6 @@ export const savedJobsData = createAsyncThunk(
         id: parseInt(job.job_id),
         is_applied: job.is_applied === 1 || job.is_applied === true, 
       }));
-      console.log("printing responce",response,"and filtered response",filteredresponse)
       return filteredresponse;
     } catch (error) {
       throw error;
@@ -383,7 +382,6 @@ const jobSlice = createSlice({
       })
       .addCase(applyJob.fulfilled, (state, action) => {
         const { JobId } = action.meta.arg;
-        console.log("printing job id",JobId,"and state",state ,"and action",action)
         // mark applied in SavedJobs
         if ( !(action.payload?.status >= 400 && action.payload?.status <= 500) &&  !action.error?.message) {
           const savedIndex = state.SavedJobs.findIndex(job => job.id === JobId);

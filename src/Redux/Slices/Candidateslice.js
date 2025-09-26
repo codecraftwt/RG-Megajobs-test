@@ -136,7 +136,6 @@ const candidateSlice = createSlice({
       })
       .addCase(fetchCandidateDetails.fulfilled, (state, action) => {
         state.modifyloading = false;
-        console.log("printing candidate details", action)
         state.selectedCandidate = action.payload;
         state.error = null
       })
