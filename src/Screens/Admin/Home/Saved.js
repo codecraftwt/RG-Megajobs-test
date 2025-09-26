@@ -46,9 +46,9 @@ const Saved = ({ route }) => {
   // const SavedJobs = Jobs.filter(job => InitialSavedJobs.includes(job.id))
 
     const SavedJobs = Jobs.filter(job => 
-      InitialSavedJobs.some(saved => saved.id === job.id)
+      InitialSavedJobs?.some(saved => saved.id === job.id)
     ).map(job => {
-      const saved = InitialSavedJobs.find(saved => saved.id === job.id);
+      const saved = InitialSavedJobs?.find(saved => saved.id === job.id);
       return {
         ...job, // keep all job details
         applied_status: saved?.is_applied // add applied status

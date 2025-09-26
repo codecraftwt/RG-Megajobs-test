@@ -11,7 +11,7 @@ import {
   useColorScheme,
   Image
 } from 'react-native';
-import { pick, types } from '@react-native-documents/picker';
+import { pick } from '@react-native-documents/picker';
 import { f, h, w } from 'walstar-rn-responsive';
 import { upload } from '../Theme/globalImages';
 import { globalColors } from '../Theme/globalColors';
@@ -65,7 +65,7 @@ export default function DocumentUpload({ type, onUploadComplete, onRemove }) {
   const uploadFunction = async () => {
     if (!file) return;
     const base64 = await RNFetchBlob.fs.readFile(file.uri, 'base64');
-    onUploadComplete?.(base64);
+    onUploadComplete?.(base64,file);
   };
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function DocumentUpload({ type, onUploadComplete, onRemove }) {
     <View style={[file ? styles.container : styles.noFileContainer, isDark && styles.containerDark]}>
       {!file ? (
         <TouchableOpacity style={styles.pickBtn} onPress={pickDocument}>
-          <Text style={styles.pickBtnTxt}>Select {type}</Text>
+          <Text style={styles.pickBtnTxt}>{type}</Text>
           <Image style={styles.pickBtnIcon} source={upload} />
         </TouchableOpacity>
       ) : (

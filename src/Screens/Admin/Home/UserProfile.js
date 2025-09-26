@@ -25,7 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 import ImagePickerModal from '../../../Components/ImagePickerModal';
 import { useSelector , useDispatch } from 'react-redux';
 import { fetchProfile } from '../../../Redux/Slices/ProfileSlice';
-import DocumentUpload from '../../../Components/DocumentUpload';
+// import DocumentUpload from '../../../Components/DocumentUpload';
 import EditProfileModal from '../Candidate/EditProfile';
 import {baseurl} from '../../../Utils/API'
 
@@ -310,7 +310,7 @@ const UserProfile = () => {
               </View>
 
               {/* Upload Resume */}
-              <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume('')}}/>
+              {/* <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume('')}}/> */}
 
               {/* About Me Section */}
               <View style={styles.aboutMeSection}>

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, Image, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Button, Image, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import AppBar from '../../../Components/AppBar'
 import { globalColors } from '../../../Theme/globalColors';
@@ -19,9 +19,11 @@ import SkeltonLoader from '../../../Components/SkeltonLoader';
 import { baseurl } from '../../../Utils/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DocumentUpload from '../../../Components/DocumentUpload';
+import ResumePreviewPopup from '../../../Components/ResumeViewerPopup';
 
 const AddCandidates = ({ route }) => {
   const { item: passeditem, updateCandidate, back } = route.params;
+  const resumeUrl=route.params.item?.user?.document?.find(doc => doc.document_type === 'resume')?.document_file;
   const [fname, setFname] = useState('');
   const [middle_name, setMiddleName] = useState('');
   const [lname, setLname] = useState('');
@@ -80,6 +82,9 @@ const AddCandidates = ({ route }) => {
   const [user, setUser] = useState(null);
   const item = useSelector(state => state.candidates.selectedCandidate)
   const loading = useSelector(state => state.candidates.modifyloading)
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [selectedResume, setSelectedResume] = useState('');
+  const [resumeInfo,setResumeInfo]=useState()
 
   useLayoutEffect(() => {
     if(passeditem?.id){
@@ -241,12 +246,12 @@ const AddCandidates = ({ route }) => {
     }, [liveValidating , validateFields]);
 
 
-      const onComplete =async  file => {
-        if (!file) {
+      const onComplete =async ( file ,info)=> {
+        if (!file || !info) {
             return
         };
         setResume(file);
-        Alert.alert('Success', 'Document uploaded successfully',file);
+        setResumeInfo(info)
       };
   
 useLayoutEffect(() => {
@@ -425,6 +430,10 @@ useEffect(() => {
 
   const navigation = useNavigation()
 
+    const handlePreviewResume = (resumeUrl) => {
+        setSelectedResume(resumeUrl);
+        setPreviewVisible(true);
+      }
   const bloodGroups = [
     { label: 'A+', value: 'A+' },
     { label: 'A-', value: 'A-' },
@@ -1208,7 +1217,24 @@ useEffect(() => {
             maxLength={4}
           />
           {errors.passout_year ? <Text style={styles.errorText}>{errors.passout_year}</Text> : null}
-             <DocumentUpload type="Resume" onUploadComplete={onComplete} onRemove={() =>{ setResume('')}}/>
+          {  back &&  (<View>
+              {resumeInfo && <><Text style={[styles.name,]} numberOfLines={1}>{resumeInfo.name}</Text>
+              <Text style={[styles.size, ]}>{(resumeInfo.size / 1024 / 1024).toFixed(2)} MB</Text></>}
+                <TouchableOpacity 
+                  style={[styles.previewkBtn]}
+                  onPress={() => handlePreviewResume(`${baseurl}/${resumeUrl}`)} 
+                >
+                  <Text style={styles.pickBtnTxt}>{t("Previw Resume")}</Text>
+                </TouchableOpacity>
+                <ResumePreviewPopup
+                  visible={previewVisible}
+                  onClose={() => setPreviewVisible(false)}
+                  resumeUrl={selectedResume}
+                  getResumeUrl={onComplete}
+                />
+              </View>)}
+
+             {!back && <DocumentUpload  type={`${back ? "select Resume" : "Update Resume"}`}  onUploadComplete={onComplete} onRemove={() =>{ setResume('')}}/>}
 
           <View
             style={{
@@ -1326,4 +1352,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: w(0.1),
     borderBottomColor: globalColors.darkblack,
   },
+  previewkBtn: {
+    marginTop: h(2.5),
+    flexDirection: 'row',
+    backgroundColor: globalColors.commonlightpink,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: w(1.5),
+    marginHorizontal: w(5),
+    paddingHorizontal: w(3),
+    borderRadius: w(2),
+  },
+  pickBtnTxt: {
+    fontSize: f(1.7),
+    fontFamily: 'BaiJamjuree-SemiBold',
+    color: globalColors.white,
+  },
+  name: { fontSize: 15, fontWeight: '500',width:"80%",margin:"auto",marginTop:h(2) },
+  size: { fontSize: 13, color: '#666', marginTop: 2,width:"80%",margin:"auto"},
 })
