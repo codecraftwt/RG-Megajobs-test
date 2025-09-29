@@ -83,7 +83,7 @@ const ResumePreviewPopup = ({
     const handleBase64Pdf = async (base64Data) => {
   try {
     // Remove data URL prefix if present
-    const cleanBase64 = base64Data.replace(/^data:.*?;base64,/, '');
+    const cleanBase64 = base64Data?.replace(/^data:.*?;base64,/, '');
 
     
 console.log("printing test variable",cleanBase64)
@@ -108,7 +108,7 @@ console.log("printing test variable",cleanBase64)
     return localUrl
     
   } catch (error) {
-    console.error('Error handling base64 PDF:', error);
+    console.log('Error handling base64 PDF:', error);
     return {
       success: false,
       error: error.message

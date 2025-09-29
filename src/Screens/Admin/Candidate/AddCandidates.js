@@ -290,6 +290,7 @@ useLayoutEffect(() => {
     setSkill(item.skills?.map(skill => skill.id.toString()));
     setFormattedbirthDate(item.dob);
     setProfile(item?.user?.document?.filter(doc => doc?.document_type == "profile")?.[0]?.document_file ? { path: `${baseurl}/${item?.user?.document?.filter(doc => doc.document_type == "profile")?.[0].document_file}` } : null)
+    setResume(item?.user?.document?.filter(doc => doc?.document_type == "resume")?.[0]?.document_file ? { path: `${baseurl}/${item?.user?.document?.filter(doc => doc.document_type == "resume")?.[0].document_file}` } : null)
   } else {
     setErrors({})
     setLiveValidating(false)
@@ -378,6 +379,7 @@ useEffect(() => {
     setGender('')
     setProfession('')
     setProfile(null)
+    setResume(null)
   });
 
   const dispatch = useDispatch()
@@ -493,7 +495,7 @@ useEffect(() => {
       job_category_id,
       education,
       skill,
-      resume
+      ...(!resume?.path ? { resume } : {})
     };
 
     if (updateCandidate && item) {
@@ -504,8 +506,14 @@ useEffect(() => {
       // Update existing candidate
       dispatch(updateCandidates({ id: item.id, data: candidateData })).then(response => {
         if (response.payload) {
-          navigation.navigate('CandidateMnt', { candidateUpdated: true });
-          clearForm();
+          if (back) {
+            navigation.navigate('UserDetails', { candidateUpdated: true });
+            clearForm();
+          }
+          else{
+            navigation.navigate('CandidateMnt', { candidateSaved: true });
+            clearForm();
+          }
         }
       });
     } else {
@@ -516,8 +524,14 @@ useEffect(() => {
       // Add new candidate
       dispatch(postCandidates(candidateData)).then(response => {
         if (response.payload) {
-          navigation.navigate('CandidateMnt', { candidateSaved: true });
-          clearForm();
+          if (back) {
+            navigation.navigate('UserDetails', { candidateUpdated: true });
+            clearForm();
+          }
+          else{
+            navigation.navigate('CandidateMnt', { candidateSaved: true });
+            clearForm();
+          }
         }
       });
     }
@@ -568,6 +582,7 @@ useEffect(() => {
       setSkill(item.skills?.map(skill => skill.id.toString()));
       setFormattedbirthDate(item.dob);
       setProfile(item?.user?.document?.filter(doc => doc?.document_type == "profile")?.[0]?.document_file ? { path: `${baseurl}/${item?.user?.document?.filter(doc => doc.document_type == "profile")?.[0].document_file}` } : null)
+    setResume(item?.user?.document?.filter(doc => doc?.document_type == "resume")?.[0]?.document_file ? { path: `${baseurl}/${item?.user?.document?.filter(doc => doc.document_type == "resume")?.[0].document_file}` } : null)
     } else {
       setErrors({})
       setLiveValidating(false)

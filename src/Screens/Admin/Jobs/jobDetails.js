@@ -138,7 +138,7 @@ const JobDetails = ({route}) => {
             <View style={{backgroundColor: globalColors.backgroundshade}}>
               {hasPermission('Apply Job Mobile') && item?.is_applied==0 ? (
                 <ApplyBtn onPress={applyJobHandler} buttonText={buttonText} />
-              ):(
+              ):( hasPermission('Apply Job Mobile') &&
                 <TouchableOpacity style={styles.applyBtnStyles} disabled={true}>
                   <Text style={styles.text}>You have already applied</Text>
                 </TouchableOpacity>

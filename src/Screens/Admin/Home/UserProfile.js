@@ -301,12 +301,6 @@ const UserProfile = () => {
                 <TouchableOpacity style={styles.actionButton} onPress={handleEditProfile}>
                   <Text style={styles.actionButtonText}>Edit Profile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Text style={styles.actionButtonText}>Share</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.iconButton}>
-                  <Image source={userprofileedit} style={styles.iconButtonImage} />
-                </TouchableOpacity>
               </View>
 
               {/* Upload Resume */}
@@ -452,11 +446,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
+    width:"100%"
   },
   actionButtonText: {
     fontSize: f(1.6),
     fontFamily: 'BaiJamjuree-SemiBold',
     color: globalColors.commonpink,
+    textAlign:"center"
   },
   iconButton: {
     backgroundColor: globalColors.white,
