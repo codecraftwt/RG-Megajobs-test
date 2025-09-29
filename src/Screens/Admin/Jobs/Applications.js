@@ -67,7 +67,12 @@ export default function Applications({route}) {
   const error = useSelector(state => state.Applications.error);
 
   if (error) {
-    return <NoData refresh={() => dispatch(fetchApplications(JobId))} />;
+    return (
+    <>
+       <AppBar backto={'JobListMnt'} showBack={true} navtitle={t('Applicants List')} />
+       <NoData refresh={() => dispatch(fetchApplications(JobId))} />
+    </>
+  );
   }
 
   //candidate screen

@@ -96,7 +96,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     const error = useSelector(state => state.candidates.error);
   
     if (error) {
-      return <NoData refresh={() => dispatch(fetchMyCandidates(user.id))} />;
+      return <>
+        <AppBar navtitle={t('Candidate List')} />
+        <NoData refresh={() => dispatch(fetchMyCandidates(user.id))} />;
+      </>
     }
   
     
