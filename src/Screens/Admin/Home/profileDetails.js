@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -18,10 +19,23 @@ import { useNavigation } from '@react-navigation/native';
 import ImagePickerModal from '../../../Components/ImagePickerModal';
 import { useSelector , useDispatch } from 'react-redux';
 import { fetchProfile } from '../../../Redux/Slices/ProfileSlice';
+import { 
+  deleteAdmin,
+  deleteCandidate,
+  deleteEmployer,
+  deleteConsultant,
+  deleteInstitute,
+  deleteGram ,
+  clearDeleteState 
+} from '../../../Redux/Slices/deleteSlice'; // ← ADDED
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ConfirmDeleteModal from '../../../Components/SuccessModal';
+import { baseurl } from '../../../Utils/API';
 
 const ProfileDetails = () => {
 
     const id = useSelector(state => state?.Permissions.userId);
+    const deleteState = useSelector(state => state.delete); 
 
       const dispatch = useDispatch();
   
@@ -33,32 +47,102 @@ const ProfileDetails = () => {
       
         const candidates = useSelector(state => state.Profile.ProfileDetails);
         const loading = useSelector(state => state.Profile.loading);
-  
+        const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+        const [selectedRole, setSelectedRole] = useState(null);
+
+        const roles = [
+          { role_id: 1, role: "admin", action: deleteAdmin }, 
+          { role_id: 2, role: "candidate", action: deleteCandidate }, 
+          { role_id: 3, role: "employer", action: deleteEmployer }, 
+          { role_id: 4, role: "consultant", action: deleteConsultant }, 
+          { role_id: 5, role: "institute", action: deleteInstitute },
+          { role_id: 6, role: "gram", action: deleteGram } 
+        ];
+
+        const handleDeleteAccount = () => {
+          const userRole = roles.find(role => role.role_id === candidates?.user?.role_id);
+
+          if (!userRole) {
+            Alert.alert("Error", "Unable to determine your account type.");
+            return;
+          }
+
+          setSelectedRole(userRole);
+          setDeleteModalVisible(true);
+        };
+
+        useEffect(() => {
+          if (deleteState.success && deleteState.deletedRole) {
+            console.log(`${deleteState.deletedRole} account deleted successfully`);
+
+            const clearStorageAndNavigate = async () => {
+              try {
+                await AsyncStorage.removeItem('token');
+                await AsyncStorage.removeItem('user');
+                console.log('AsyncStorage cleared successfully');
+
+                Alert.alert(
+                  "Success",
+                  `Your ${deleteState.deletedRole} account has been deleted successfully.`,
+                  [
+                    {
+                      text: "OK",
+                      onPress: () => {
+                        navigation.replace('Auth');
+                        dispatch(clearDeleteState()); // ✅ reset after success
+                      }
+                    }
+                  ]
+                );
+              } catch (storageError) {
+                console.error('Error clearing AsyncStorage:', storageError);
+                navigation.replace('Auth');
+                dispatch(clearDeleteState()); // ✅ reset anyway
+              }
+            };
+
+            clearStorageAndNavigate();
+          }
+
+          if (deleteState.error) {
+            console.log("Delete error:", deleteState.error);
+            Alert.alert(
+              "Error",
+              `Failed to delete account: ${deleteState.error.message || deleteState.error}`
+            );
+            dispatch(clearDeleteState()); // ✅ reset after error
+          }
+        }, [deleteState.success, deleteState.error, deleteState.deletedRole, dispatch, navigation]);
+
+
   
   const buttonText = () => {
     return (
-      <View style={styles.buttonContent}>
+       <TouchableOpacity 
+        style={styles.buttonContent}
+        onPress={handleDeleteAccount}
+        disabled={deleteState.loading}
+      >
         <MaterialIcons
           name="delete-outline"
           size={w(6)}
-          color={globalColors.white}
+          color={deleteState.loading ? globalColors.grey : globalColors.white}
           style={styles.icon}
         />
         <Text
           style={{
             fontFamily: 'BaiJamjuree-Bold',
-            color: globalColors.white,
+            color: deleteState.loading ? globalColors.grey : globalColors.white,
             fontSize: f(1.8),
             textAlign: 'center',
           }}>
-          Delete Account
+          {deleteState.loading ? 'Deleting...' : 'Delete Account'} 
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   };
-
-  const [profile, setProfile] = useState(
-    'https://i.pinimg.com/564x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg',
+  
+  const [profile, setProfile] = useState(candidates?.user?.document?.filter(doc => doc?.document_type == "profile")?.[0]?.document_file ? `${baseurl}/${candidates?.user?.document?.filter(doc => doc.document_type == "profile")?.[0].document_file}` : null
   );
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -175,6 +259,16 @@ const ProfileDetails = () => {
             visible={modalVisible}
             onClose={closeModal}
             setProfile={setProfile}
+          />
+          <ConfirmDeleteModal
+            visible={deleteModalVisible}
+            role={selectedRole?.role}
+            loading={deleteState.loading}
+            onCancel={() => setDeleteModalVisible(false)}
+            onConfirm={() => {
+              dispatch(selectedRole.action(id));
+              setDeleteModalVisible(false);
+            }}
           />
     </ScrollView>
   );

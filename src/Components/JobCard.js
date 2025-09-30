@@ -75,7 +75,7 @@ const JobCard = ({ item , goback ,params, onApplied }) => {
               || action?.error?.message
               || "Something went wrong",
             position: 'bottom',
-            type: 'error'
+            type: 'success'
           });
         } else {
           // ✅ Success → trigger parent refresh

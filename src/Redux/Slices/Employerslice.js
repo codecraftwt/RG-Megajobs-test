@@ -29,6 +29,19 @@ export const fetchEmployersnameList = createAsyncThunk(
   }
 );
 
+export const deleteEmployer = createAsyncThunk(
+  'employers/deleteEmployer',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await instance.delete(`api/employers/${id}`);
+      return { id, message: response.data.message || 'Employer deleted successfully' };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
 const employerSlice = createSlice({
   name: 'employers',
   initialState: {
@@ -38,6 +51,8 @@ const employerSlice = createSlice({
     employerDetails:[],
     loading: false,
     error: null,
+    deleteLoading: false,
+    deleteError: null,
   },
   reducers: {
     SavedCompany: (state, action) => {
@@ -84,6 +99,31 @@ const employerSlice = createSlice({
       .addCase(fetchEmployerDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+       // Delete Employer
+      .addCase(deleteEmployer.pending, (state) => {
+        state.deleteLoading = true;
+        state.deleteError = null;
+      })
+      .addCase(deleteEmployer.fulfilled, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError = null;
+        
+        const { id } = action.payload;
+        
+        state.employers = state.employers.filter((employer) => employer.id !== id);
+        
+        state.employersNameList = state.employersNameList.filter((employer) => employer.id !== id);
+        
+        state.SavedCompany = state.SavedCompany.filter((employer) => employer.id !== id);
+        
+        if (state.employerDetails && state.employerDetails.id === id) {
+          state.employerDetails = [];
+        }
+      })
+      .addCase(deleteEmployer.rejected, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError = action.payload || action.error.message;
       });
   },
 });

@@ -30,7 +30,7 @@ const UserJobDetailsCard = ({item}) => {
 
   // const dispatch = useDispatch();
   const bookmarkedJobs = useSelector(state => state.jobs.SavedJobs);
-  const isBookmarked = bookmarkedJobs.find(job => job.id === item?.id);
+  const isBookmarked = bookmarkedJobs?.find(job => job.id === item?.id);
   // const isBookmarked = bookmarkedJobs?.some(job => job.id === item.id);
   const dispatch = useDispatch()
 

@@ -26,6 +26,7 @@ export default function AppBar({params , backto, navtitle, showBack}) {
   const navigation = useNavigation();
   const hasPermission = usePermissionCheck()
   const notifications = useSelector(state => state.auth.notifications)
+  const user = useSelector(state => state.auth.user)
 
   const openDrawer = () => {
     navigation.dispatch(DrawerActions.openDrawer());

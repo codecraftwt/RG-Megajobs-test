@@ -47,7 +47,7 @@ export const postEducation = createAsyncThunk(
 export const updateEducation = createAsyncThunk(
   'update/Education',async({id ,field1})=>{
       try {
-          const response = await instance.patch(`api/educations/${id}`,{education:field1})
+          const response = await instance.patch(`api/educations/${id}`,{education:field1,course_id:1})
           Toast.show({
             text1:response.data.message,
             position: 'bottom'

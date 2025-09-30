@@ -20,6 +20,17 @@ export const fetchConsultantDetails = createAsyncThunk(
     }
   }
 );
+export const deleteConsultantProfile = createAsyncThunk(
+  'consultants/deleteConsultantProfile',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await instance.delete(`api/consultants/${id}`);
+      return response.data; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 const consultantSlice = createSlice({
   name: 'consultants',
@@ -55,6 +66,20 @@ const consultantSlice = createSlice({
       .addCase(fetchConsultantDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(deleteConsultantProfile.fulfilled, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError = null;
+        
+        state.consultants = state.consultants.filter(consultant => consultant.id !== action.meta.arg);
+        
+        if (state.ConsultantDetails && state.ConsultantDetails.id === action.meta.arg) {
+          state.ConsultantDetails = null;
+        }
+      })
+      .addCase(deleteConsultantProfile.rejected, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError = action.payload || action.error.message;
       });
   },
 });

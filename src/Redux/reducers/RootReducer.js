@@ -15,7 +15,7 @@ import ApplicationsReducer from '../Slices/Applicationslice'
 import jobReportReducer from '../Slices/jobReportSlice'
 import subscriptionReportReducer from '../Slices/subscriptionReportSlice'
 import ProfileSlice from '../Slices/ProfileSlice';
-
+import DeleteProfile from '../Slices/deleteSlice';
 
 
 
@@ -36,6 +36,7 @@ const rootReducer = combineReducers({
   jobReport:jobReportReducer,
   subscriptionReport:subscriptionReportReducer,
   Profile:ProfileSlice,
+  delete:DeleteProfile
 });
 
 export default rootReducer;
