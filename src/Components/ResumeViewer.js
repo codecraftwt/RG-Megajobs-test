@@ -51,7 +51,7 @@ const ResumeViewer = ({ route, navigation }) => {
     const { nativeEvent } = syntheticEvent;
     setLoading(false);
     setError('Failed to load resume');
-    console.error('WebView error:', nativeEvent);
+    console.log('WebView error:', nativeEvent);
   };
 
   const renderPdfViewer = () => {
@@ -285,7 +285,7 @@ const handleDownload = async () => {
         //   return;
         // }
       } catch (permissionError) {
-        console.error('Permission error:', permissionError);
+        console.log('Permission error:', permissionError);
         Alert.alert('Error', 'Failed to request storage permission');
         return;
       }
@@ -432,7 +432,7 @@ const handleDownload = async () => {
                     });
                   }
                 } catch (openError) {
-                  console.error('Error opening file:', openError);
+                  console.log('Error opening file:', openError);
                   Toast.show({
                     text1: 'File downloaded',
                     text2: 'Cannot open file automatically',
@@ -476,7 +476,7 @@ const handleDownload = async () => {
     }
 
   } catch (error) {
-    console.error('Download error:', error);
+    console.log('Download error:', error);
     
     // Determine specific error message
     let errorMessage = "Failed to download resume";

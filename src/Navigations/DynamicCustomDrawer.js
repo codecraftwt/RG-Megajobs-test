@@ -45,7 +45,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                 setUser(userData)
             }
         } catch (error) {
-            console.error('Error retrieving data from AsyncStorage:', error);
+            console.log('Error retrieving data from AsyncStorage:', error);
             navigation.replace('Login');
         }
     };

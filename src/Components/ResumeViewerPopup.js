@@ -58,7 +58,7 @@ const ResumePreviewPopup = ({
     const { nativeEvent } = syntheticEvent;
     setLoading(false);
     setError('Failed to load resume');
-    console.error('WebView error:', nativeEvent);
+    console.log('WebView error:', nativeEvent);
   };
     const onComplete =async  file => {
       if (!file) {

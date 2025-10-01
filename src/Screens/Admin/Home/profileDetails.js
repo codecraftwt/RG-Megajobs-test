@@ -95,7 +95,7 @@ const ProfileDetails = () => {
                   ]
                 );
               } catch (storageError) {
-                console.error('Error clearing AsyncStorage:', storageError);
+                console.log('Error clearing AsyncStorage:', storageError);
                 navigation.replace('Auth');
                 dispatch(clearDeleteState()); // ✅ reset anyway
               }

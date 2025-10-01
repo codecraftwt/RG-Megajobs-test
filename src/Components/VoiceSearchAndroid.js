@@ -75,7 +75,7 @@ function AppContent() {
     try {
       
       if (!Voice || typeof Voice.isAvailable !== 'function') {
-        console.error('Voice module not properly loaded');
+        console.log('Voice module not properly loaded');
         setIsInitialized(false);
         return;
       }
@@ -83,14 +83,14 @@ function AppContent() {
       const isAvailable = await Voice.isAvailable();
       
       if (!isAvailable) {
-        console.error('Voice recognition not available on this device');
+        console.log('Voice recognition not available on this device');
         setIsInitialized(false);
         return;
       }
       
       setIsInitialized(true);
     } catch (error) {
-      console.error('Error initializing Voice:', error);
+      console.log('Error initializing Voice:', error);
       setIsInitialized(false);
     }
   };
@@ -110,7 +110,7 @@ function AppContent() {
           setLastError('Recognition timeout. Please try again.');
         }
       } catch (error) {
-        console.error('Error stopping voice recognition on timeout:', error);
+        console.log('Error stopping voice recognition on timeout:', error);
         if (isRecording && !isHandlingError.current) {
           setLastError('Recognition timeout. Please try again.');
         }
@@ -221,7 +221,7 @@ function AppContent() {
         setHasPermission(true);
       }
     } catch (error) {
-      console.error('Error checking permissions:', error);
+      console.log('Error checking permissions:', error);
       setHasPermission(false);
     }
   };
@@ -305,8 +305,8 @@ function AppContent() {
       await Voice.start('hi-IN');
       console.warn('Voice module loaded last :', Voice._loaded);
     } catch (error) {
-      console.error('Error starting voice recognition:', error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.log('Error starting voice recognition:', error);
+      console.log('Error details:', JSON.stringify(error, null, 2));
       Alert.alert('Error', `Failed to start voice recognition: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
@@ -333,7 +333,7 @@ function AppContent() {
       setIsRecording(false);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error stopping voice recognition:', error);
+      console.log('Error stopping voice recognition:', error);
     }
   };
 

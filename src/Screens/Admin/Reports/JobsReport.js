@@ -197,7 +197,7 @@ const JobsReport = () => {
     await RNFS.writeFile(fileUri, bufferStr, 'base64');
       alert(`Excel File is saved to : ${fileUri}`);
   } catch (error) {
-    console.error('Error generating or saving Excel file:', error);
+    console.log('Error generating or saving Excel file:', error);
   }
 };
 

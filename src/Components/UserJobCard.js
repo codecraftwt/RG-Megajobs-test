@@ -39,13 +39,13 @@ const UserJobCard = ({ item }) => {
       try {
         await dispatch(unsaveJob({ jobId: item.id, userId: user.id }));
       } catch (error) {
-        console.error('Failed to unsave job:', error);
+        console.log('Failed to unsave job:', error);
       }
     } else {
       try {
         await dispatch(saveJob({ jobId: item.id, userId: user.id }));
       } catch (error) {
-        console.error('Failed to save job:', error);
+        console.log('Failed to save job:', error);
       }
     }
   };

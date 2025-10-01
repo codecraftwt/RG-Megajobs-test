@@ -148,7 +148,7 @@ const AddCandidates = ({ route }) => {
       setZipcode(''); // Clear if no data found
     }
   } catch (error) {
-    console.error('Error fetching zipcode from Nominatim:', error);
+    console.log('Error fetching zipcode from Nominatim:', error);
     // You might want to set a default value or show an error message
     setZipcode('');
   }

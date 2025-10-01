@@ -18,7 +18,7 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
             changeLanguage(language)
             onClose();
         } catch (error) {
-            console.error('Error saving language preference:', error);
+            console.log('Error saving language preference:', error);
         }
     };
 
@@ -32,7 +32,7 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
                     setSelectedLanguage('en');
                 }
             } catch (error) {
-                console.error('Error fetching language:', error);
+                console.log('Error fetching language:', error);
             }
         };
 
@@ -43,7 +43,7 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
         try {
             i18n.changeLanguage(lng);
         } catch (error) {
-            console.error('Error setting language:', error);
+            console.log('Error setting language:', error);
         }
     };
 

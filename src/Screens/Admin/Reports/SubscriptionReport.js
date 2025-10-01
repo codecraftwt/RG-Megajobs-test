@@ -139,7 +139,7 @@ const SubscriptionReport = () => {
       let file = await RNHTMLtoPDF.convert(options);
       alert(`Pdf File is saved to : ${file.filePath}`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.log('Error generating PDF:', error);
     }
   };
 
@@ -218,7 +218,7 @@ const SubscriptionReport = () => {
       await RNFS.writeFile(fileUri, bufferStr, 'base64');
       await alert(`Excel File is saved to : ${fileUri}`);
     } catch (error) {
-      console.error('Error generating or saving Excel file:', error);
+      console.log('Error generating or saving Excel file:', error);
     }
   };
   

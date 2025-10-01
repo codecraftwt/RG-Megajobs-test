@@ -20,7 +20,7 @@ const PermissionsList = ({ HeaderComponent, footerComponent }) => {
             ListFooterComponent={footerComponent}
             contentContainerStyle={styles.container}
             onError={(error) => {
-                console.error('FlatList error:', error);
+                console.log('FlatList error:', error);
             }}
             ListEmptyComponent={() => (
                 <View style={styles.empty}>

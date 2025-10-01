@@ -80,7 +80,7 @@ const UserSearchBar = ({ visible, placeholder, handleSearch, searchInputRef }) =
       }
     } catch (error) {
       setErrorMessage('Error starting voice recognition');
-      console.error('Error starting voice recognition:', error);
+      console.log('Error starting voice recognition:', error);
     }
   };
 
@@ -90,7 +90,7 @@ const UserSearchBar = ({ visible, placeholder, handleSearch, searchInputRef }) =
       closeModal();
     } catch (error) {
       setErrorMessage('Error stopping voice recognition');
-      console.error('Error stopping voice recognition:', error);
+      console.log('Error stopping voice recognition:', error);
     }
   };
 
