@@ -412,6 +412,7 @@ const UserProfile = ({ route }) => {
               onClose={closeModal}
               setProfile={setProfile}
               noimg={true}
+              setDefaultImage={true}
             />
           </LinearGradient>
         </ScrollView>
