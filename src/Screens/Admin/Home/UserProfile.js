@@ -33,14 +33,14 @@ import { updateCandidates } from '../../../Redux/Slices/Candidateslice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Grid Item Component - Updated to receive navigation prop
-const ProfileGridItem = ({ icon, label, value, onEdit, resumeFile, navigation }) => (
+const ProfileGridItem = ({  label, value, onEdit, resumeFile, navigation }) => (
   <TouchableOpacity 
     style={[
-      styles.gridItem,
-    ]}
+    styles.gridItem,
+    { width: label == "DOB" || label == "Blood Group" || label == "Passout Year" || label == "Experience" ? w(38) : w(84) },
+  ]}
     onPress={() => {
       if (label === 'View Resume' && resumeFile) {
-        // Call the function passed from parent
         onEdit(resumeFile);
       } else if (onEdit) {
         onEdit();
@@ -49,11 +49,11 @@ const ProfileGridItem = ({ icon, label, value, onEdit, resumeFile, navigation })
     disabled={label === 'View Resume' && !resumeFile}
   >
     <View style={styles.gridHeader}>
-      <Text style={styles.gridIcon}>{icon}</Text>
       <Text style={styles.gridLabel}>{label}</Text>
     </View>
     <Text style={[
       styles.gridValue, 
+      {color: label === 'View Resume'? "rgb(9 166 237)" : globalColors.darkblack}
     ]} numberOfLines={2}>
       {value || 'Not provided'}
     </Text>
@@ -194,7 +194,6 @@ const UserProfile = ({ route }) => {
   // Enhanced grid configuration with edit handlers
   const PROFILE_GRID_CONFIG = [
     {
-      icon: '🏠',
       label: 'Address',
       value: [
         candidates?.address_line_1,
@@ -207,54 +206,44 @@ const UserProfile = ({ route }) => {
       ].filter(Boolean).join(", "),
     },
     {
-      icon: '📍',
       label: 'Job Location',
       value: candidates?.job_location,
     },
     {
-      icon: '🎂',
       label: 'DOB',
       value: candidates?.dob,
     },
     {
-      icon: '💉',
       label: 'Blood Group',
       value: candidates?.blood_group,
     },
     {
-      icon: '🆔',
       label: 'Aadhar No',
       value: candidates?.aadhar_no,
     },
     {
-      icon: '💳',
       label: 'PAN',
       value: candidates?.pancard_no,
     },
     {
-      icon: '🎓',
       label: 'College',
       value: candidates?.college_name,
     },
     {
-      icon: '📅',
       label: 'Passout Year',
       value: candidates?.passout_year,
     },
     {
-      icon: '⏳',
       label: 'Experience',
       value: candidates?.min_experience && candidates?.max_experience
         ? `${candidates.min_experience} - ${candidates.max_experience} years`
         : null,
     },
     {
-      icon: '📱',
       label: 'Alternate Contact',
       value: candidates?.contact_number_2,
     },
     {
-      icon: '📄',
       label: 'View Resume',
       value: candidates?.user?.document?.find(doc => doc.document_type === 'resume')?.document_file ? 'Tap to view resume' : 'No resume available',
       resumeFile: candidates?.user?.document?.find(doc => doc.document_type === 'resume')?.document_file,
@@ -388,14 +377,12 @@ const UserProfile = ({ route }) => {
 
               {/* About Me Section */}
               <View style={styles.aboutMeSection}>
-                <Text style={styles.aboutMeTitle}>About Me</Text>
                 
                 {/* Grid Layout */}
                 <View style={styles.gridContainer}>
                   {PROFILE_GRID_CONFIG.map((item, index) => (
                     <ProfileGridItem
                       key={index}
-                      icon={item.icon}
                       label={item.label}
                       value={item.value}
                       resumeFile={item.resumeFile}
@@ -587,9 +574,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginHorizontal:w(4)
   },
   gridItem: {
-    width: w(42),
+    width: w(82),
     backgroundColor: globalColors.white,
     borderRadius: w(3),
     padding: w(4),
@@ -599,6 +587,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
+    justifyContent:'center',
   },
   gridHeader: {
     flexDirection: 'row',
@@ -613,9 +602,10 @@ const styles = StyleSheet.create({
     padding: w(1),
   },
   gridLabel: {
-    fontSize: f(1.5),
+    fontSize: f(1.7),
     fontFamily: 'BaiJamjuree-Medium',
     color: globalColors.grey,
+    fontWeight: 'bold',
     marginBottom: h(0.5),
   },
   gridValue: {
