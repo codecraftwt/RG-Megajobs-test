@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import {PaperProvider} from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import Navigation from './src/Navigations/index';
-import i18n from './src/Utils/i18n.config';
 import Toast, { BaseToast } from 'react-native-toast-message';
 import {Provider} from 'react-redux';
 import store from './src/Redux/store/store';

@@ -22,7 +22,7 @@ import Toast from 'react-native-toast-message';
 import {login} from '../../Redux/Slices/authslice';
 import {useDispatch, useSelector} from 'react-redux';
 import {getPermission} from '../../Redux/Slices/Permissionslice';
-import LanguageModal from '../../Components/LanguageModal';
+// import LanguageModal from '../../Components/LanguageModal';
 
 export default function Login() {
   const navigation = useNavigation();
@@ -34,8 +34,8 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const isLoading = useSelector(state => state.auth.isLoading);
-  const isLoadingpermission = useSelector(state => state.Permissions.isLoading);
-  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const isLoadingpermission = useSelector(state => state.Permissions?.isLoading);
+  // const [showLanguageModal, setShowLanguageModal] = useState(false);
   const dispatch = useDispatch();
 
   // toast function
@@ -124,11 +124,11 @@ export default function Login() {
         barStyle={'dark-content'}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <LanguageModal
+        {/* <LanguageModal
           setvisible={setShowLanguageModal}
           isVisible={showLanguageModal}
           onClose={() => setShowLanguageModal(false)}
-        />
+        /> */}
         <TouchableOpacity
           style={{
             zIndex: 10,
@@ -139,7 +139,8 @@ export default function Login() {
             borderColor: globalColors.mauve,
             borderRadius: w(2),
           }}
-          onPress={() => setShowLanguageModal(true)}>
+          // onPress={() => setShowLanguageModal(true)}
+          >
           <Text
             style={{
               color: globalColors.mauve,

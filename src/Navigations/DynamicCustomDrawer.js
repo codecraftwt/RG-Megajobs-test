@@ -8,7 +8,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import usePermissionCheck from '../Utils/HasPermission';
-import LanguageModal from '../Components/LanguageModal';
 import { baseurl } from '../Utils/API';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
@@ -28,7 +27,6 @@ const DynamicCustomDrawer = ({ navigation }) => {
         setShowJobsSubItems(!showJobsSubItems);
     };
 
-    const [showLanguageModal, setShowLanguageModal] = useState(false)
     const [user, setUser] = useState('')
     const updatedProfile = useSelector(state => state?.Profile?.updated);
     console.log("testusertest", updatedProfile)
@@ -60,40 +58,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
 
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
-            <LanguageModal setvisible={setShowLanguageModal} isVisible={showLanguageModal} onClose={() => setShowLanguageModal(false)} />
             <View style={styles.container}>
-                <TouchableOpacity style={{ zIndex: 10, position: 'absolute', right: '2%', top: w(19), borderWidth: w(0.4), borderRadius: w(2), borderColor: globalColors.mauve }} onPress={() => setShowLanguageModal(true)}>
-                    <Text style={{
-                        color: globalColors.mauve, paddingHorizontal: h(0.5),
-                        fontSize: f(1.5),
-                        fontFamily: 'BaiJamjuree-SemiBold'
-
-                    }}>
-                        {t('Language')}
-                    </Text>
-                </TouchableOpacity>
-                <View style={styles.header}>
-                    <View style={{ marginTop: h(2.5) }}>
-                        <Image
-                            resizeMode="contain"
-                            source={{
-                                    uri: user?.document?.find(doc => doc?.document_type === "profile")?.document_file
-                                        ? (
-                                            user.document.find(doc => doc.document_type === "profile").document_file.startsWith("http")
-                                            ? user.document.find(doc => doc.document_type === "profile").document_file
-                                            : `${baseurl}/${user.document.find(doc => doc.document_type === "profile").document_file}`
-                                        )
-                                        : "https://gramjob.walstarmedia.com/dashboard_assets/images/admin_img.png"
-                                    }}
-                            style={styles.profileImage}
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.userName}>{user.name || user.fname}</Text>
-                        <Text style={styles.userpost}>{user.contact_number}</Text>
-                        <Text style={styles.useremail}>{user.email}</Text>
-                    </View>
-                </View>
                 <TouchableOpacity
                     style={styles.drawerItem}
                     onPress={() =>
@@ -102,14 +67,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                     <Image resizeMode="contain" style={styles.logo} source={blogo1} />
                     <Text style={styles.drawertxt}>{t('home')}</Text>
                 </TouchableOpacity>
-                {hasPermission('Grampanchayat View') && (
-                    <TouchableOpacity
-                        style={styles.drawerItem}
-                        onPress={() => navigation.navigate('Grampanchayat')}>
-                        <Image resizeMode="contain" style={styles.logo} source={blogo5} />
 
-                        <Text style={styles.drawertxt}>{t('Grampanchayat')}</Text>
-                    </TouchableOpacity>)}
                 {hasPermission("Created Jobs View") || hasPermission("Job Type View Mobile") || hasPermission("Job Education View Mobile") || hasPermission("Job skill View Mobile") || hasPermission("Job Category View Mobile") ? (
                     <TouchableOpacity
                         style={styles.drawerItem}
@@ -130,7 +88,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.drawerItem}
                                 onPress={() => {
-                                    navigation.navigate('JobListMnt'),
+                                    navigation.navigate('JobsCategoryMnt'),
                                         setShowReportsSubItems(false);
                                 }}>
                                 <View style={{ marginStart: w(4) }}>
@@ -162,7 +120,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.drawerItem}
                                 onPress={() => {
-                                    navigation.navigate('Jobtype'),
+                                    navigation.navigate('JobsCategoryMnt'),
                                         setShowReportsSubItems(false);
                                 }}>
                                 <View style={{ marginStart: w(4) }}>
@@ -179,7 +137,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.drawerItem}
                                 onPress={() => {
-                                    navigation.navigate('Skill'),
+                                    navigation.navigate('JobsCategoryMnt'),
                                         setShowReportsSubItems(false);
                                 }}>
                                 <View style={{ marginStart: w(4) }}>
@@ -195,7 +153,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.drawerItem}
                                 onPress={() => {
-                                    navigation.navigate('Education'),
+                                    navigation.navigate('JobsCategoryMnt'),
                                         setShowReportsSubItems(false);
                                 }}>
                                 <View style={{ marginStart: w(4) }}>
@@ -213,7 +171,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
 
                     <TouchableOpacity
                         style={styles.drawerItem}
-                        onPress={() => navigation.navigate('CandidateMnt')}>
+                        onPress={() => navigation.navigate('JobsCategoryMnt')}>
                         <Image resizeMode="contain" style={styles.logo} source={blogo4} />
 
                         <Text style={styles.drawertxt}>{t('Candidate Management')}</Text>
@@ -221,7 +179,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                 {hasPermission('Subscription Management') && (
                     <TouchableOpacity
                         style={styles.drawerItem}
-                        onPress={() => navigation.navigate('SubscriptionMnt')}>
+                        onPress={() => navigation.navigate('JobsCategoryMnt')}>
                         <Image resizeMode="contain" style={styles.logo} source={subsmnt} />
 
                         <Text style={styles.drawertxt}>{t('Subscription Management')}</Text>
@@ -258,7 +216,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.drawerItem}
                                 onPress={() => {
-                                    navigation.navigate('SubscriptionReport'),
+                                    navigation.navigate('JobsCategoryMnt'),
                                         setShowReportsSubItems(false);
                                 }}>
                                 <View style={{ marginStart: w(4) }}>
@@ -275,7 +233,7 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.drawerItem}
                                 onPress={() => {
-                                    navigation.navigate('JobsReport'),
+                                    navigation.navigate('JobsCategoryMnt'),
                                         setShowReportsSubItems(false);
                                 }}>
                                 <View style={{ marginStart: w(4) }}>
@@ -289,35 +247,9 @@ const DynamicCustomDrawer = ({ navigation }) => {
                             </TouchableOpacity>)}
                     </>
                 )}
-                {hasPermission('Apply Job Mobile') && (
-                    <TouchableOpacity
-                        style={styles.drawerItem}
-                        onPress={() => navigation.navigate('AppliedJobs')}>
-                        <Image
-                            resizeMode="contain"
-                            style={styles.logo}
-                            source={suitcase}
-                        />
-
-                        <Text style={styles.drawertxt}>{t('Applied Jobs')}</Text>
-                    </TouchableOpacity>
-                )}
-                {hasPermission('Save Job Mobile') && (
-                    <TouchableOpacity
-                        style={styles.drawerItem}
-                        onPress={() => navigation.navigate('SavedJobs', { showappbar: true })}>
-                        <Image
-                            resizeMode="contain"
-                            style={styles.logo}
-                            source={save}
-                        />
-
-                        <Text style={styles.drawertxt}>{t('Saved Jobs')}</Text>
-                    </TouchableOpacity>
-                )}
                 <TouchableOpacity
                     style={styles.drawerItem}
-                    onPress={() => navigation.navigate('UserDetails')}>
+                    onPress={() => navigation.navigate('JobsCategoryMnt')}>
                     <Image
                         resizeMode="contain"
                         style={styles.logo}
