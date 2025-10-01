@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
   gridLabel: {
     fontSize: f(1.7),
     fontFamily: 'BaiJamjuree-Medium',
-    color: globalColors.grey,
+    color: globalColors.black,
     fontWeight: 'bold',
     marginBottom: h(0.5),
   },
