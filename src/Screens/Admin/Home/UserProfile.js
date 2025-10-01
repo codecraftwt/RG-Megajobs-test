@@ -18,6 +18,7 @@ import {
   email,
   phone,
   upload,
+  user,
   userprofileedit
 } from '../../../Theme/globalImages';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -28,6 +29,8 @@ import { fetchProfile } from '../../../Redux/Slices/ProfileSlice';
 // import DocumentUpload from '../../../Components/DocumentUpload';
 import EditProfileModal from '../Candidate/EditProfile';
 import {baseurl} from '../../../Utils/API'
+import { updateCandidates } from '../../../Redux/Slices/Candidateslice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Grid Item Component - Updated to receive navigation prop
 const ProfileGridItem = ({ icon, label, value, onEdit, resumeFile, navigation }) => (
@@ -57,10 +60,12 @@ const ProfileGridItem = ({ icon, label, value, onEdit, resumeFile, navigation })
   </TouchableOpacity>
 );
 
-const UserProfile = () => {
+const UserProfile = ({ route }) => {
+  // console.log("route",route)
   const navigation = useNavigation();
   const [resume, setResume] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [updatesPrifile, setUpdatesPrifile] = useState(false);
   const [profile, setProfile] = useState(
     'https://i.pinimg.com/564x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg',
   );
@@ -70,19 +75,23 @@ const UserProfile = () => {
   const closeModal = () => setModalVisible(false);
 
       const id = useSelector(state => state?.Permissions.userId);
+      const updatedProfile = useSelector(state => state?.Profile?.loading);
+      // console.log("first",updatedProfile)
   
       const dispatch = useDispatch();
     
         useEffect(()=>{
+          // console.log("comming here")
           if (id != null) {
             dispatch(fetchProfile(id))
           }
-        },[id])
+        },[id,route?.params?.candidateUpdated,updatesPrifile])
     
       const candidates = useSelector(state => state.Profile.ProfileDetails);
       const loading = useSelector(state => state.Profile.loading);
 
       useEffect(() => {
+        // console.log("printing candidates",candidates)
         if (candidates?.user?.document?.length > 0) {
           const profileDoc = candidates.user.document.find(doc => doc.document_type === 'profile')?.document_file;
           const profileUrl=`${baseurl}/${profileDoc}`
@@ -91,6 +100,69 @@ const UserProfile = () => {
           }
         }
       }, [candidates]); 
+
+      useEffect(()=>{
+        // console.log("printing profile",profile,candidates)
+        if ( candidates != null ) {
+          const eduID = candidates?.education?.map(item => String(item.id));
+          const skillID = candidates?.skills?.map(item => String(item.id));
+          const payload = {
+            profile: profile?.data,
+            user_id: candidates?.user_id,
+            fname: candidates?.fname,
+            middle_name: candidates?.middle_name,
+            lname: candidates?.lname,
+            email: candidates?.email,
+            min_experience: candidates?.min_experience,
+            max_experience: candidates?.max_experience,
+            state_id: candidates?.state_id,
+            district_id: candidates?.district_id,
+            gender: candidates?.user?.gender,
+            profession: candidates?.profession,
+            taluka_id: candidates?.taluka_id,
+            village_id: candidates?.village_id,
+            zipcode: candidates?.zipcode,
+            dob: candidates?.dob,
+            phone: candidates?.contact_number_1,
+            contact_number_2: candidates?.contact_number_2,
+            address_line_1: candidates?.address_line_1,
+            address_line_2: candidates?.address_line_2,
+            aadhar_no: candidates?.aadhar_no,
+            pancard_no: candidates?.pancard_no,
+            blood_group: candidates?.blood_group,
+            job_location: candidates?.job_location,
+            passout_year: candidates?.passout_year,
+            college_name: candidates?.college_name,
+            description: candidates?.description,
+            job_category_id: ["1"],   
+            education: eduID,       
+            skill: skillID,    
+          };
+            // console.log("payload is",payload)
+            if (payload.email==null) return 
+           dispatch(updateCandidates({ id: candidates?.id, data: payload }))
+           .then(async() => {
+             setUpdatesPrifile(pre=>!pre)
+            const usertest = await AsyncStorage.getItem('user');
+            if (usertest) {
+              const  userData = JSON.parse(usertest);
+              // console.log("testusertest in profile", userData)
+
+                // update only profile document
+                const updatedUserData = {
+                  ...userData,
+                  document: userData.document.map(doc =>
+                    doc.document_type == "profile"
+                      ? { ...doc, document_file: `${profile}` }
+                      : doc
+                  )
+                };
+                // console.log("testusertest in payload updated", updatedUserData,"and profile is",profile)
+               await AsyncStorage.setItem('user', JSON.stringify(updatedUserData));
+            }
+           })
+        }
+      },[profile])
 
   const onComplete = async (file) => {
     if (!file) {
@@ -264,7 +336,15 @@ const UserProfile = () => {
             <TouchableOpacity onPress={openModal} style={styles.profileImageContainer}>
               <Image
                 resizeMode="cover"
-                source={{ uri: profile }}
+                source={
+                      profile
+                        ? typeof profile === 'string' && profile.startsWith('http')
+                          ? { uri: profile } // normal URL
+                          : typeof profile === 'string'
+                          ? { uri: `data:image/jpeg;base64,${profile}` } // base64
+                          : { uri: 'https://i.pinimg.com/564x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg' } // fallback if not string
+                        : { uri: 'https://i.pinimg.com/564x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg' } // fallback if undefined/null
+                    }
                 style={styles.userImage}
               />
                 <View style={styles.editImageOverlay}>
@@ -331,6 +411,7 @@ const UserProfile = () => {
               visible={modalVisible}
               onClose={closeModal}
               setProfile={setProfile}
+              noimg={true}
             />
           </LinearGradient>
         </ScrollView>

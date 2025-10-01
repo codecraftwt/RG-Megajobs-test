@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import instance from '../../Utils/AxiosInstance';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const fetchCandidates = createAsyncThunk(
   'candidates/fetchCandidates',
@@ -103,6 +104,7 @@ const candidateSlice = createSlice({
     loading: false,
     modifyloading:false,
     error: null,
+    updatedProfile:false
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -170,6 +172,17 @@ const candidateSlice = createSlice({
           state.myCandidates[index] = action.payload;
         }
         state.error = null;
+        //  if (action.payload) {
+        //   console.log("usertest for", action.payload)
+        //   AsyncStorage.setItem('user', JSON.stringify(action.payload))
+        //   state.updatedProfile = !(state.updatedProfile)
+        //     .then(() => {
+        //       console.log('User data updated in AsyncStorage');
+        //     })
+        //     .catch((error) => {
+        //       console.error('Failed to save user data to AsyncStorage:', error);
+        //     });
+        // }
       })
       .addCase(updateCandidates.rejected, (state, action) => {
         state.modifyloading = false;

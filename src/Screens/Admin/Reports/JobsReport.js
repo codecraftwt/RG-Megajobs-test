@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, FlatList, Platform } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { f, h, w } from 'walstar-rn-responsive';
 import { globalColors } from '../../../Theme/globalColors';
@@ -51,8 +51,10 @@ const JobsReport = () => {
       }, [dispatch]);
 
       useEffect(() => {
+        if (jobReportData.jobs) {
           setItems(jobReportData.jobs);
           setFiltereditems(jobReportData.jobs); 
+        }
       }, [jobReportData,loading]);
 
         const cleanHtmlContent = (htmlString) => {
@@ -76,14 +78,19 @@ const JobsReport = () => {
     let options = {
       html: htmlContent,
       fileName: 'Jobs Report',
-      directory: '',
     };
 
     try {
       let file = await RNHTMLtoPDF.convert(options);
-      alert(`Pdf File is saved to : ${file.filePath}`);
+      if (Platform.OS === 'android' && file.filePath) {
+        const downloadsPath = `${RNFS.DownloadDirectoryPath}/Jobs Report.pdf`;
+        await RNFS.moveFile(file.filePath, downloadsPath);
+        alert(`Pdf File is saved to : ${downloadsPath}`);
+      } else {
+        alert(`PDF File is saved to: ${file.filePath}`);
+      }
     } catch (error) {
-      console.error('Error generating PDF:', error);
+        console.log('Error generating PDF:', error);
     }
   };
 
@@ -145,46 +152,54 @@ const JobsReport = () => {
 
   //excel creation
   const generateShareableExcel = async () => {
-    const fileName = 'Jobs Report.xlsx';
-    const fileUri = `${RNFS.ExternalDirectoryPath}/${fileName}`;
-    try {
-      const workbook = new ExcelJS.Workbook();
-      workbook.creator = 'Gram Job';
-      workbook.created = new Date();
-      const worksheet = workbook.addWorksheet('Jobs Report', {});
-            
+  const fileName = 'Jobs Report.xlsx';
+  
+  try {
+    // For Android
+    let fileUri;
+    if (Platform.OS === 'android') {
+      fileUri = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+    } else {
+      // For iOS
+      fileUri = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    }
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Gram Job';
+    workbook.created = new Date();
+    const worksheet = workbook.addWorksheet('Jobs Report', {});
+    
             // Updated columns to match your data structure
-      worksheet.columns = [
-        { header: 'Title', key: 'title', width: 20 },
-        { header: 'Summary', key: 'summary', width: 30 },
-        { header: 'Location', key: 'location', width: 15 },
-        { header: 'Created Date', key: 'createdDate', width: 15 },
-        { header: 'Openings', key: 'openings', width: 10 },
-        { header: 'Applications', key: 'applications', width: 12 },
-        { header: 'Status', key: 'status', width: 12 },
-      ];
+    worksheet.columns = [
+      { header: 'Title', key: 'title', width: 20 },
+      { header: 'Summary', key: 'summary', width: 30 },
+      { header: 'Location', key: 'location', width: 15 },
+      { header: 'Created Date', key: 'createdDate', width: 15 },
+      { header: 'Openings', key: 'openings', width: 10 },
+      { header: 'Applications', key: 'applications', width: 12 },
+      { header: 'Status', key: 'status', width: 12 },
+    ];
 
             // Add rows with your actual data structure
-        filtereditems.map((item) => 
-          worksheet.addRow({ 
-            title: item?.title || 'N/A',
-            summary: cleanHtmlContent(item?.summary) || 'N/A',
-            location: item?.location || 'N/A',
-            createdDate: item?.created_at || 'N/A',
-            openings: item?.openings || 'N/A',
-            applications: item?.applications || 'N/A',
-            status: item?.status || 'N/A'
-         })
-       );
-      const buffer = await workbook.xlsx.writeBuffer();
-      const nodeBuffer = Buffer.from(buffer);
-      const bufferStr = nodeBuffer.toString('base64');
-      await RNFS.writeFile(fileUri, bufferStr, 'base64');
+    filtereditems.map((item) => 
+      worksheet.addRow({ 
+        title: item?.title || 'N/A',
+        summary: cleanHtmlContent(item?.summary) || 'N/A',
+        location: item?.location || 'N/A',
+        createdDate: item?.created_at || 'N/A',
+        openings: item?.openings || 'N/A',
+        applications: item?.applications || 'N/A',
+        status: item?.status || 'N/A'
+      })
+    );
+    const buffer = await workbook.xlsx.writeBuffer();
+    const nodeBuffer = Buffer.from(buffer);
+    const bufferStr = nodeBuffer.toString('base64');
+    await RNFS.writeFile(fileUri, bufferStr, 'base64');
       alert(`Excel File is saved to : ${fileUri}`);
-    } catch (error) {
-      console.error('Error generating or saving Excel file:', error);
-    }
-  };
+  } catch (error) {
+    console.error('Error generating or saving Excel file:', error);
+  }
+};
 
     if (loading) return <SkeltonLoader />;  
     if (error) return

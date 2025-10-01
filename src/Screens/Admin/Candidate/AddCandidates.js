@@ -85,6 +85,7 @@ const AddCandidates = ({ route }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [selectedResume, setSelectedResume] = useState('');
   const [resumeInfo,setResumeInfo]=useState()
+  const [updateSuccess, setUpdateSuccess] = useState(false);  
 
   useLayoutEffect(() => {
     if(passeditem?.id){
@@ -507,7 +508,8 @@ useEffect(() => {
       dispatch(updateCandidates({ id: item.id, data: candidateData })).then(response => {
         if (response.payload) {
           if (back) {
-            navigation.navigate('UserDetails', { candidateUpdated: true });
+            setUpdateSuccess(pre=>!pre)
+            navigation.navigate('UserDetails', { candidateUpdated: updateSuccess });
             clearForm();
           }
           else{

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TouchableOpacity, Text, View, Image, StyleSheet, ScrollView } from 'react-native';
 import { blogo1, blogo4, blogo5, educationicon, logout, save, subsmnt, suitcase,accountdrawer } from '../Theme/globalImages';
 import { globalColors } from '../Theme/globalColors';
@@ -11,6 +11,7 @@ import usePermissionCheck from '../Utils/HasPermission';
 import LanguageModal from '../Components/LanguageModal';
 import { baseurl } from '../Utils/API';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const DynamicCustomDrawer = ({ navigation }) => {
     const { t } = useTranslation();
@@ -29,12 +30,18 @@ const DynamicCustomDrawer = ({ navigation }) => {
 
     const [showLanguageModal, setShowLanguageModal] = useState(false)
     const [user, setUser] = useState('')
+    const updatedProfile = useSelector(state => state?.Profile?.updated);
+    console.log("testusertest", updatedProfile)
+
+    useEffect(() => {
+        fetchuser();
+    }, [updatedProfile]);
 
     const fetchuser = async () => {
         try {
-            const user = await AsyncStorage.getItem('user');
-            if (user) {
-                const userData = JSON.parse(user);
+            const usertest = await AsyncStorage.getItem('user');
+            if (usertest) {
+                const userData = JSON.parse(usertest);
                 setUser(userData)
             }
         } catch (error) {
@@ -69,12 +76,20 @@ const DynamicCustomDrawer = ({ navigation }) => {
                     <View style={{ marginTop: h(2.5) }}>
                         <Image
                             resizeMode="contain"
-                            source={user?.document?.filter(doc => doc?.document_type == "profile")?.[0]?.document_file ? { uri: `${baseurl}/${user?.document?.filter(doc => doc.document_type == "profile")?.[0].document_file}` } : { uri: 'https://gramjob.walstarmedia.com/dashboard_assets/images/admin_img.png'}}
+                            source={{
+                                    uri: user?.document?.find(doc => doc?.document_type === "profile")?.document_file
+                                        ? (
+                                            user.document.find(doc => doc.document_type === "profile").document_file.startsWith("http")
+                                            ? user.document.find(doc => doc.document_type === "profile").document_file
+                                            : `${baseurl}/${user.document.find(doc => doc.document_type === "profile").document_file}`
+                                        )
+                                        : "https://gramjob.walstarmedia.com/dashboard_assets/images/admin_img.png"
+                                    }}
                             style={styles.profileImage}
                         />
                     </View>
                     <View>
-                        <Text style={styles.userName}>{user.name}</Text>
+                        <Text style={styles.userName}>{user.name || user.fname}</Text>
                         <Text style={styles.userpost}>{user.contact_number}</Text>
                         <Text style={styles.useremail}>{user.email}</Text>
                     </View>

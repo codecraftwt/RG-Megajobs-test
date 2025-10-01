@@ -15,6 +15,7 @@ const ProfileSlice = createSlice({
         ProfileDetails: [],
         loading: false,
         error: null,
+        updated:false
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -26,6 +27,7 @@ const ProfileSlice = createSlice({
                 state.loading = false;
                 state.ProfileDetails = action.payload; 
                 state.error = null
+                state.updated = !state.updated
             })
             .addCase(fetchProfile.rejected, (state, action) => {
                 state.loading = false;

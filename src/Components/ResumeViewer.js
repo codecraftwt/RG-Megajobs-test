@@ -9,6 +9,7 @@ import {
   Alert,
   Dimensions,
   Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -123,129 +124,396 @@ const ResumeViewer = ({ route, navigation }) => {
 //   }
 // };
 
- const handleDownload = async () => {
+//  const handleDownload = async () => {
     
-    if (isDownloading) {
-      Alert.alert('Info', 'Download already in progress');
+//     if (isDownloading) {
+//       Alert.alert('Info', 'Download already in progress');
+//       return;
+//     }
+
+//     try {
+//       // Check if component is mounted and app is active
+//       if (!navigation.isFocused()) {
+//         return;
+//       }
+
+//       if (!resumeUrl) {
+//         Alert.alert('Error', 'No resume available for download');
+//         return;
+//       }
+
+//       // Request storage permission for Android
+//       if (Platform.OS === 'android') {
+//         try {
+//           const granted = await PermissionsAndroid.request(
+//             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+//             {
+//               title: 'Storage Permission Required',
+//               message: 'App needs access to your storage to download resumes',
+//               buttonPositive: 'OK',
+//             }
+//           );
+
+//           if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+//             Alert.alert('Permission Denied', 'Storage permission is required to download files');
+//             return;
+//           }
+//         } catch (permissionError) {
+//           console.error('Permission error:', permissionError);
+//           Alert.alert('Error', 'Failed to request storage permission');
+//           return;
+//         }
+//       }
+
+//       setIsDownloading(true);
+
+//       // Show downloading alert
+//       Alert.alert('Downloading', 'Your resume is being downloaded...');
+
+//       // Get file extension from URL
+//       const fileExtension = resumeUrl.split('.').pop() || 'pdf';
+//       const fileName = `resume_${Date.now()}.${fileExtension}`;
+
+//       // Define download path
+//       let downloadPath;
+      
+//       if (Platform.OS === 'android') {
+//         downloadPath = RNFetchBlob.fs.dirs.DownloadDir + '/' + fileName;
+//       } else {
+//         // For iOS, use DocumentDirectory
+//         downloadPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + fileName;
+//       }
+
+
+//       // Download the file
+//       const result = await RNFetchBlob.config({
+//         fileCache: true,
+//         path: downloadPath,
+//         addAndroidDownloads: {
+//           useDownloadManager: true,
+//           notification: true,
+//           path: downloadPath,
+//           description: 'Resume Download',
+//           mime: 'application/pdf'
+//         }
+//       }).fetch('GET', resumeUrl);
+
+//       // Check if download was successful
+//       if (result.info().status === 200) {
+        
+//         // For Android, scan the file to make it visible in gallery/downloads
+//         if (Platform.OS === 'android') {
+//           RNFetchBlob.fs.scanFile([{ path: result.path(), mime: 'application/pdf' }]);
+//         }
+
+//         Alert.alert(
+//           'Success', 
+//           `Resume downloaded successfully!\n\nSaved to: ${Platform.OS === 'android' ? 'Downloads folder' : 'Documents folder'}`,
+//           [
+//             { 
+//               text: 'Open File', 
+//               onPress: () => {
+//                 // Open the file
+//                 if (Platform.OS === 'android') {
+//                   RNFetchBlob.android.actionViewIntent(result.path(), 'application/pdf');
+//                 } else {
+//                   // For iOS, you might need to use a different method
+//                 }
+//               }
+//             },
+//             { text: 'OK', style: 'cancel' }
+//           ]
+//         );
+
+//       } else {
+//         throw new Error(`Download failed with status: ${result.info().status}`);
+//       }
+
+//     } catch (error) {
+//       console.error('Download error:', error);
+      
+//       let errorMessage = "Failed to download resume";
+      
+//       if (error.message.includes('Network request failed')) {
+//         errorMessage = "Network error. Please check your internet connection";
+//       } else if (error.message.includes('permission')) {
+//         errorMessage = "Storage permission denied";
+//       } else if (error.message.includes('404')) {
+//         errorMessage = "Resume file not found on server";
+//       }
+
+//       Alert.alert('Download Failed', errorMessage);
+//     } finally {
+//       setIsDownloading(false);
+//     }
+//     };
+
+const handleDownload = async () => {
+  if (isDownloading) {
+    Alert.alert('Info', 'Download already in progress');
+    return;
+  }
+
+  try {
+    // Check if component is mounted and app is active
+    if (!navigation.isFocused()) {
       return;
     }
 
-    try {
-      // Check if component is mounted and app is active
-      if (!navigation.isFocused()) {
-        return;
-      }
+    if (!resumeUrl) {
+      Alert.alert('Error', 'No resume available for download');
+      return;
+    }
 
-      if (!resumeUrl) {
-        Alert.alert('Error', 'No resume available for download');
-        return;
-      }
-
-      // Request storage permission for Android
-      if (Platform.OS === 'android') {
-        try {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-            {
-              title: 'Storage Permission Required',
-              message: 'App needs access to your storage to download resumes',
-              buttonPositive: 'OK',
-            }
-          );
-
-          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert('Permission Denied', 'Storage permission is required to download files');
-            return;
+    // Request storage permission for Android
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message: 'App needs access to your storage to download resumes',
+            buttonPositive: 'OK',
+            buttonNegative: 'Cancel',
+            buttonNeutral: 'Ask Me Later',
           }
-        } catch (permissionError) {
-          console.error('Permission error:', permissionError);
-          Alert.alert('Error', 'Failed to request storage permission');
-          return;
-        }
+        );
+
+        // if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        //   console.log("printing granted",granted,"and result",PermissionsAndroid.RESULTS.GRANTED);
+        //   Alert.alert('Permission Denied', 'Storage permission is required to download files');
+        //   return;
+        // }
+      } catch (permissionError) {
+        console.error('Permission error:', permissionError);
+        Alert.alert('Error', 'Failed to request storage permission');
+        return;
       }
+    }
 
-      setIsDownloading(true);
+    setIsDownloading(true);
+    setDownloadProgress(0);
 
-      // Show downloading alert
-      Alert.alert('Downloading', 'Your resume is being downloaded...');
+    // Extract filename from URL or create a default one
+    const extractFilename = (url) => {
+      try {
+        const urlParts = url.split('/');
+        const filename = urlParts[urlParts.length - 1];
+        console.log("printing filename param",urlParts, " and filename",filename);
 
-      // Get file extension from URL
-      const fileExtension = resumeUrl.split('.').pop() || 'pdf';
-      const fileName = `resume_${Date.now()}.${fileExtension}`;
+        
+        // Check if filename has extension
+        if (filename && filename.includes('.')) {
+          return filename;
+        }
+        
+        // Check URL parameters for filename
+        const urlObj = new URL(url);
+        const filenameParam = urlObj.searchParams.get('filename');
+        if (filenameParam) {
+          return filenameParam;
+        }
+        
+        // Default filename based on file type
+        const fileExtension = isPdf ? 'pdf' : 'jpg';
+        return `resume_${Date.now()}.${fileExtension}`;
+      } catch (error) {
+        return `resume_${Date.now()}.pdf`;
+      }
+    };
 
-      // Define download path
-      let downloadPath;
+    const fileName = extractFilename("https://gramjob.walstarmedia.com/resume/JohnMichaelDoe2025-09-24_.1_.pdf");
+    
+    // Define download path
+    let downloadPath;
+    if (Platform.OS === 'android') {
+      // Use DownloadDir for Android to make file visible in Downloads folder
+      downloadPath = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+    } else {
+      // Use DocumentDir for iOS
+      downloadPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    }
+
+    // Check if file already exists and create unique name if needed
+    let finalPath = downloadPath;
+    let counter = 1;
+    while (await RNFS.exists(finalPath)) {
+      const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+      const extension = fileName.substring(fileName.lastIndexOf('.'));
+      const newFileName = `${nameWithoutExt}_${counter}${extension}`;
       
       if (Platform.OS === 'android') {
-        downloadPath = RNFetchBlob.fs.dirs.DownloadDir + '/' + fileName;
+        finalPath = `${RNFS.DownloadDirectoryPath}/${newFileName}`;
       } else {
-        // For iOS, use DocumentDirectory
-        downloadPath = RNFetchBlob.fs.dirs.DocumentDir + '/' + fileName;
+        finalPath = `${RNFS.DocumentDirectoryPath}/${newFileName}`;
       }
+      counter++;
+    }
 
+    // Show downloading toast
+    Toast.show({
+      text1: 'Download Started',
+      text2: 'Your resume is being downloaded...',
+      position: 'bottom',
+      type: 'info'
+    });
 
-      // Download the file
-      const result = await RNFetchBlob.config({
-        fileCache: true,
-        path: downloadPath,
-        addAndroidDownloads: {
-          useDownloadManager: true,
-          notification: true,
-          path: downloadPath,
-          description: 'Resume Download',
-          mime: 'application/pdf'
-        }
-      }).fetch('GET', resumeUrl);
-
-      // Check if download was successful
-      if (result.info().status === 200) {
+    // Configure download options
+    const downloadOptions = {
+      fromUrl: resumeUrl,
+      toFile: finalPath,
+      background: true, // Enable background download (iOS)
+      discretionary: true, // Allow OS to control timing (iOS)
+      progress: (res) => {
+        // Calculate download progress
+        const progressPercent = (res.bytesWritten / res.contentLength) * 100;
+        const roundedProgress = Math.round(progressPercent);
         
-        // For Android, scan the file to make it visible in gallery/downloads
-        if (Platform.OS === 'android') {
-          RNFetchBlob.fs.scanFile([{ path: result.path(), mime: 'application/pdf' }]);
-        }
+        setDownloadProgress(roundedProgress);
+        
+        console.log(`Download Progress: ${roundedProgress}%`);
+        console.log(`Downloaded: ${(res.bytesWritten / 1024 / 1024).toFixed(2)} MB of ${(res.contentLength / 1024 / 1024).toFixed(2)} MB`);
+      },
+      begin: (res) => {
+        console.log('Download started');
+        console.log('Content-Length:', res.contentLength);
+        console.log('Response headers:', res.headers);
+        
+        // Check if we have enough storage space (optional)
+        const fileSizeMB = res.contentLength / 1024 / 1024;
+        console.log(`File size: ${fileSizeMB.toFixed(2)} MB`);
+      }
+    };
 
+    // Start download using RNFS
+    const downloadResult = await RNFS.downloadFile(downloadOptions).promise;
+
+    console.log("printing filename param",downloadResult," and fileoptions",downloadOptions);
+
+    // Check download status
+    if (downloadResult.statusCode === 200) {
+      console.log('File downloaded successfully:', finalPath);
+      
+      // Verify file exists and get file stats
+      const fileExists = await RNFS.exists(finalPath);
+      if (fileExists) {
+        const fileStat = await RNFS.stat(finalPath);
+        console.log('Downloaded file size:', fileStat.size);
+        
+        // Show success message with options
         Alert.alert(
-          'Success', 
-          `Resume downloaded successfully!\n\nSaved to: ${Platform.OS === 'android' ? 'Downloads folder' : 'Documents folder'}`,
+          'Download Complete', 
+          `Resume downloaded successfully!\n\nFile: ${fileName}\nSize: ${(fileStat.size / 1024 / 1024).toFixed(2)} MB\nLocation: ${Platform.OS === 'android' ? 'Downloads folder' : 'Documents folder'}`,
           [
             { 
               text: 'Open File', 
-              onPress: () => {
-                // Open the file
-                if (Platform.OS === 'android') {
-                  RNFetchBlob.android.actionViewIntent(result.path(), 'application/pdf');
-                } else {
-                  // For iOS, you might need to use a different method
+              onPress: async () => {
+                try {
+                  if (Platform.OS === 'android') {
+                    // For Android, try to open with system default app
+                    const mimeType = isPdf ? 'application/pdf' : 'image/jpeg';
+                    await RNFS.scanFile(finalPath); // Make file visible in gallery/downloads
+                    // Note: RNFS doesn't have actionViewIntent, you might need react-native-file-viewer
+                    // or react-native-share for opening files
+                    Toast.show({
+                      text1: 'File Ready',
+                      text2: 'Check your Downloads folder',
+                      position: 'bottom',
+                      type: 'success'
+                    });
+                  } else {
+                    // For iOS, you might need a different approach
+                    // You can use react-native-share or react-native-file-viewer
+                    Toast.show({
+                      text1: 'File Ready',
+                      text2: 'Check your Files app',
+                      position: 'bottom',
+                      type: 'success'
+                    });
+                  }
+                } catch (openError) {
+                  console.error('Error opening file:', openError);
+                  Toast.show({
+                    text1: 'File downloaded',
+                    text2: 'Cannot open file automatically',
+                    position: 'bottom',
+                    type: 'info'
+                  });
                 }
+              }
+            },
+            { 
+              text: 'Share', 
+              onPress: () => {
+                // Copy file path to clipboard for sharing
+                Clipboard.setString(finalPath);
+                Toast.show({
+                  text1: 'File path copied',
+                  text2: 'You can share this path',
+                  position: 'bottom',
+                  type: 'success'
+                });
               }
             },
             { text: 'OK', style: 'cancel' }
           ]
         );
 
+        // Show success toast
+        Toast.show({
+          text1: 'Download Complete',
+          text2: `${fileName} saved successfully`,
+          position: 'bottom',
+          type: 'success'
+        });
+
       } else {
-        throw new Error(`Download failed with status: ${result.info().status}`);
+        throw new Error('Downloaded file not found');
       }
-
-    } catch (error) {
-      console.error('Download error:', error);
       
-      let errorMessage = "Failed to download resume";
-      
-      if (error.message.includes('Network request failed')) {
-        errorMessage = "Network error. Please check your internet connection";
-      } else if (error.message.includes('permission')) {
-        errorMessage = "Storage permission denied";
-      } else if (error.message.includes('404')) {
-        errorMessage = "Resume file not found on server";
-      }
-
-      Alert.alert('Download Failed', errorMessage);
-    } finally {
-      setIsDownloading(false);
+    } else {
+      throw new Error(`Download failed with status: ${downloadResult.statusCode}`);
     }
-  };
+
+  } catch (error) {
+    console.error('Download error:', error);
+    
+    // Determine specific error message
+    let errorMessage = "Failed to download resume";
+    
+    if (error.message.includes('Network request failed') || error.message.includes('network')) {
+      errorMessage = "Network error. Please check your internet connection";
+    } else if (error.message.includes('permission') || error.message.includes('Permission')) {
+      errorMessage = "Storage permission denied";
+    } else if (error.message.includes('404') || error.message.includes('Not Found')) {
+      errorMessage = "Resume file not found on server";
+    } else if (error.message.includes('403') || error.message.includes('Forbidden')) {
+      errorMessage = "Access denied to download this file";
+    } else if (error.message.includes('timeout')) {
+      errorMessage = "Download timeout. Please try again";
+    } else if (error.message.includes('space') || error.message.includes('storage')) {
+      errorMessage = "Insufficient storage space";
+    }
+
+    // Show error alert
+    Alert.alert('Download Failed', errorMessage, [
+      { text: 'Retry', onPress: () => handleDownload() },
+      { text: 'Cancel', style: 'cancel' }
+    ]);
+
+    // Show error toast
+    Toast.show({
+      text1: 'Download Failed',
+      text2: errorMessage,
+      position: 'bottom',
+      type: 'error'
+    });
+
+  } finally {
+    setIsDownloading(false);
+    setDownloadProgress(0);
+  }
+};
 
 
   const handleShare = () => {
