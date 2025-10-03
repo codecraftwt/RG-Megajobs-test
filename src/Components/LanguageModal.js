@@ -7,7 +7,7 @@ import { globalColors } from '../Theme/globalColors';
 import { RadioButton } from 'react-native-paper';
 
 const LanguageModal = ({ setvisible, isVisible, onClose }) => {
-    const [selectedLanguage, setSelectedLanguage] = useState('');
+    const [selectedLanguage, setSelectedLanguage] = useState('en');
     const { t, i18n } = useTranslation();
 
     // Function to handle language selection
@@ -15,7 +15,7 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
         try {
             await AsyncStorage.setItem('language', language);
             setSelectedLanguage(language);
-            changeLanguage(language)
+            await i18n.changeLanguage(language);
             onClose();
         } catch (error) {
             console.log('Error saving language preference:', error);
@@ -27,9 +27,8 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
             try {
                 const language = await AsyncStorage.getItem('language');
                 if (language) {
-                    handleLanguageSelect(language);
-                } else {
-                    setSelectedLanguage('en');
+                    setSelectedLanguage(language);
+                    await i18n.changeLanguage(language);
                 }
             } catch (error) {
                 console.log('Error fetching language:', error);
@@ -37,7 +36,7 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
         };
 
         fetchLanguage();
-    }, []);
+    }, [i18n]);
 
     const changeLanguage = async (lng) => {
         try {
@@ -48,8 +47,8 @@ const LanguageModal = ({ setvisible, isVisible, onClose }) => {
     };
 
     return (
-        <Modal visible={isVisible} onBackdropPress={onClose} transparent={true}>
-            <TouchableOpacity onPress={() => setvisible(false)} style={styles.modalContainer}>
+        <Modal visible={isVisible} onRequestClose={onClose} transparent={true}>
+            <TouchableOpacity onPress={onClose} style={styles.modalContainer} activeOpacity={1}>
                 <View style={styles.modalContent}>
                     <Text style={styles.modalTitle}>{t("Select Language")}</Text>
                     <RadioButton.Group
