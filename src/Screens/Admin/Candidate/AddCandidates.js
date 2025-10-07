@@ -1237,12 +1237,12 @@ useEffect(() => {
           {  back &&  (<View>
               {resumeInfo && <><Text style={[styles.name,]} numberOfLines={1}>{resumeInfo.name}</Text>
               <Text style={[styles.size, ]}>{(resumeInfo.size / 1024 / 1024).toFixed(2)} MB</Text></>}
-                <TouchableOpacity 
+                {!resumeInfo && <TouchableOpacity 
                   style={[styles.previewkBtn]}
                   onPress={() => handlePreviewResume(`${baseurl}/${resumeUrl}`)} 
                 >
                   <Text style={styles.pickBtnTxt}>{t("Previw Resume")}</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>}
                 <ResumePreviewPopup
                   visible={previewVisible}
                   onClose={() => setPreviewVisible(false)}

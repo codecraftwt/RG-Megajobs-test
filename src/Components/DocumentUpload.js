@@ -79,7 +79,7 @@ export default function DocumentUpload({ type, onUploadComplete, onRemove }) {
 
   /* ------------ UI ------------ */
   return (
-    <View style={[file ? styles.container : styles.noFileContainer, isDark && styles.containerDark]}>
+    <View style={[file ? styles.container : styles.noFileContainer]}>
       {!file ? (
         <TouchableOpacity style={styles.pickBtn} onPress={pickDocument}>
           <Text style={styles.pickBtnTxt}>{type}</Text>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   noFileContainer: {
     marginVertical: w(2),
   },
-  containerDark: { backgroundColor: '#1c1c1e' },
+  // containerDark: { backgroundColor: '#1c1c1e' },
   pickBtn: {
     marginTop: h(1),
     flexDirection: 'row',
