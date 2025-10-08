@@ -1,8 +1,4 @@
-Perfect! I'll create a comprehensive PDF with **properly formatted, readable code snippets** and **separate CRUD sections for both Firestore AND Firebase Storage**. The code will be cleanly formatted like your example.
 
-Here's your **Mastering Firebase: Firestore + Storage CRUD Guide**:
-
----
 
 # **Mastering Firebase: Firestore + Storage CRUD Guide**
 
